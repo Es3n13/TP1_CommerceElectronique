@@ -1,0 +1,54 @@
+﻿@page "{id:int}"
+@model BoutiqueElegance.Pages.Restaurants.DetailsModel
+
+@{
+    ViewData["Title"] = Model.Restaurant?.Name ?? "Restaurant";
+}
+
+@if (Model.Restaurant == null)
+{
+    <p>Restaurant introuvable.</p>
+}
+else
+{
+    <section class="restaurant-header">
+        <img src="@Model.Restaurant.ImageUrl" alt="@Model.Restaurant.Name" class="restaurant-image" />
+        <div class="restaurant-info">
+            <h2>@Model.Restaurant.Name</h2>
+            <p>@Model.Restaurant.Description</p>
+            <p>@Model.Restaurant.Address</p>
+            <p class="tags">
+                Cuisine :
+                @string.Join(", ", Model.Restaurant.RestaurantTags.Select(rt => rt.Tag.Name))
+            </p>
+        </div>
+    </section>
+
+    <section class="menu-section">
+        <h3>Menu</h3>
+
+        @if (!Model.Restaurant.Plats.Any())
+        {
+            <p>Aucun plat n'est disponible pour le moment.</p>
+        }
+        else
+        {
+            <div class="products">
+                @foreach (var plat in Model.Restaurant.Plats)
+                {
+                    <div class="product-card">
+                        <img src="@plat.ImageUrl" alt="@plat.Name" />
+                        <h3>@plat.Name</h3>
+                        <p>@plat.Description</p>
+                        <p class="price">@plat.Price $</p>
+                        <button onclick="location.href='@Url.Page(
+                            "/Cart/Add",
+                            new { platId = plat.Id, restaurantId = Model.Restaurant.Id })'">
+                            Ajouter au panier
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+}

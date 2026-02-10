@@ -1,0 +1,97 @@
+﻿@page
+@model BoutiqueElegance.Pages.Checkout.IndexModel
+@{
+    ViewData["Title"] = "Paiement";
+}
+
+<h2>Paiement</h2>
+
+<section class="checkout-layout">
+    <!-- Récapitulatif du panier -->
+    <div class="checkout-summary">
+        <h3>Votre commande</h3>
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Plat</th>
+                    <th>Quantité</th>
+                    <th>Prix</th>
+                    <th>Sous-total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Cart.Items)
+                {
+                    <tr>
+                        <td>@item.Plat.Name</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.UnitPrice $</td>
+                        <td>@(item.UnitPrice* item.Quantity).ToString("0.00") $</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="text-align:right;">Total :</td>
+                    <td>@Model.Total $</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Formulaire de paiement -->
+    <div class="checkout-payment">
+        <h3>Informations de paiement (mode test)</h3>
+
+        <p class="checkout-note">
+            Utilise des données fictives pour tester. Aucune transaction réelle ne sera effectuée.
+        </p>
+
+        <form method="post" class="payment-form">
+            <div class="form-group">
+                <label>Nom sur la carte</label>
+                <input asp-for="CardHolderName" required />
+            </div>
+
+            <div class="form-group">
+                <label>Courriel</label>
+                <input asp-for="Email" type="email" required />
+            </div>
+
+            <div class="form-group">
+                <label>Numéro de carte</label>
+                <input type="text"
+                       placeholder="4242 4242 4242 4242"
+                       maxlength="19" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Expiration</label>
+                    <input type="text"
+                           placeholder="MM/AA"
+                           maxlength="5" />
+                </div>
+                <div class="form-group">
+                    <label>CVC</label>
+                    <input type="text"
+                           placeholder="123"
+                           maxlength="4" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Code postal</label>
+                <input type="text" placeholder="G0L 1B0" />
+            </div>
+
+            <button type="submit" class="pay-button">
+                Payer @Model.Total $
+            </button>
+        </form>
+
+        <p class="checkout-test-info">
+            Exemple de carte de test Stripe : 4242 4242 4242 4242, date future (12/34), CVC 123.
+        </p>
+    </div>
+</section>

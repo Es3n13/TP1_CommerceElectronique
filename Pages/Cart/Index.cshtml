@@ -1,0 +1,48 @@
+﻿@page
+@model BoutiqueElegance.Pages.Cart.IndexModel
+
+@{
+    ViewData["Title"] = "Panier";
+}
+
+<h2>Votre panier</h2>
+
+@if (Model.Cart.Items == null || !Model.Cart.Items.Any())
+{
+    <p>Votre panier est vide.</p>
+}
+else
+{
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Plat</th>
+                <th>Prix</th>
+                <th>Quantité</th>
+                <th>Sous-total</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Cart.Items)
+        {
+            <tr>
+                <td>@item.Plat.Name</td>
+                <td>@item.UnitPrice $</td>
+                <td>@item.Quantity</td>
+                <td>@(item.UnitPrice * item.Quantity)$</td>
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align:right;"><strong>Total :</strong></td>
+                <td>@Model.GetTotal().ToString("0.00") $</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    @if (Model.Cart.Items.Any())
+    {
+        <a href="@Url.Page("/Checkout/Index")" class="checkout-button">Passer au paiement</a>
+    }
+}

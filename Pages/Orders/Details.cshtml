@@ -1,0 +1,43 @@
+﻿@page "{id:int}"
+@model BoutiqueElegance.Pages.Orders.DetailsModel
+
+@{
+    ViewData["Title"] = "Détails de la commande";
+}
+
+@if (Model.Order == null)
+{
+    <p>Commande introuvable.</p>
+}
+else
+{
+    <h2>Commande #@Model.Order.Id</h2>
+    <p>Date : @Model.Order.CreatedAt.ToLocalTime().ToString("g")</p>
+    <p>Status : @Model.Order.Status</p>
+
+    <h3>Facture</h3>
+    <p>Montant total : @Model.Order.TotalAmount $</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Plat</th>
+                <th>Quantité</th>
+                <th>Prix unitaire</th>
+                <th>Sous-total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Order.Items)
+            {
+                <tr>
+                    <td>@item.Plat.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice $</td>
+                    <td>@(item.UnitPrice* item.Quantity) $</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

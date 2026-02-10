@@ -1,0 +1,43 @@
+﻿@page
+@model BoutiqueElegance.Pages.Orders.IndexModel
+
+@{
+    ViewData["Title"] = "Mes commandes";
+}
+
+<h2>Mes commandes</h2>
+
+@if (!Model.Orders.Any())
+{
+    <p>Vous n'avez pas encore de commande.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Montant</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.Orders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.CreatedAt.ToLocalTime().ToString("g")</td>
+                    <td>@order.TotalAmount $</td>
+                    <td>@order.Status</td>
+                    <td>
+                        <a href="@Url.Page("/Orders/Details", new { id = order.Id })">
+                            Détails / Facture
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

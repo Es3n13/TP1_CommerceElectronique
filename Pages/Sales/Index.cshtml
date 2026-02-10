@@ -1,0 +1,47 @@
+﻿@page
+@model BoutiqueElegance.Pages.Sales.IndexModel
+
+@{
+    ViewData["Title"] = "Commandes du restaurant";
+}
+
+@if (Model.Restaurant == null)
+{
+    <p>Aucun restaurant n'est associé à votre compte vendeur.</p>
+}
+else
+{
+    <h2>Commandes pour @Model.Restaurant.Name</h2>
+    <p>Montant total gagné : @Model.TotalRestaurantRevenue $</p>
+
+    @if (!Model.Orders.Any())
+    {
+        <p>Aucune commande pour le moment.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Montant</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.Orders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.CreatedAt.ToLocalTime().ToString("g")</td>
+                        <td>@order.Client.FullName</td>
+                        <td>@order.TotalAmount $</td>
+                        <td>@order.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
