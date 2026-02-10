@@ -5,44 +5,80 @@
     ViewData["Title"] = "Panier";
 }
 
-<h2>Votre panier</h2>
+<div class="container">
+    <h2 class="page-title">Votre panier</h2>
 
-@if (Model.Cart.Items == null || !Model.Cart.Items.Any())
-{
-    <p>Votre panier est vide.</p>
-}
-else
-{
-    <table class="cart-table">
-        <thead>
-            <tr>
-                <th>Plat</th>
-                <th>Prix</th>
-                <th>Quantité</th>
-                <th>Sous-total</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model.Cart.Items)
-        {
-            <tr>
-                <td>@item.Plat.Name</td>
-                <td>@item.UnitPrice $</td>
-                <td>@item.Quantity</td>
-                <td>@(item.UnitPrice * item.Quantity)$</td>
-            </tr>
-        }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" style="text-align:right;"><strong>Total :</strong></td>
-                <td>@Model.GetTotal().ToString("0.00") $</td>
-            </tr>
-        </tfoot>
-    </table>
-
-    @if (Model.Cart.Items.Any())
+    @if (Model.Cart.Items == null || !Model.Cart.Items.Any())
     {
-        <a href="@Url.Page("/Checkout/Index")" class="checkout-button">Passer au paiement</a>
+        <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h3>Votre panier est vide</h3>
+            <p>Découvrez les délicieux plats et ajoutez-les à votre panier</p>
+            <a href="@Url.Page("/Index")" class="btn btn-primary">Continuer vos achats</a>
+        </div>
     }
-}
+    else
+    {
+        <div class="cart-wrapper">
+            <!--PPanier  -->
+            <div class="cart-items-section">
+                <div class="cart-items">
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="cart-item-card">
+
+                            <!-- Details -->
+                            <div class="item-content">
+                                <h4 class="item-name">@item.Plat.Name</h4>
+                                <p class="item-description">@item.Plat.Description</p>
+                                <p class="item-unit-price">@item.UnitPrice $ <span class="per-unit">l'unité</span></p>
+                            </div>
+
+                            <!-- Quantité et action -->
+                            <div class="item-footer">
+                                <div class="quantity-control">
+                                    <span class="quantity-label">Quantité: <strong>@item.Quantity</strong></span>
+                                </div>
+
+                                <div class="item-price">
+                                    <span class="subtotal-label">Sous-total:</span>
+                                    <span class="subtotal-amount">@(item.UnitPrice* item.Quantity) $</span>
+                                </div>
+
+                                <button class="btn-remove" data-item-id="@item.Id" title="Supprimer">
+                                    🗑️ Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Résumé de la commande -->
+            <div class="cart-summary">
+                <h3>Résumé de commande</h3>
+
+                <div class="summary-line">
+                    <span class="summary-label">Sous-total:</span>
+                    <span class="summary-value">@Model.GetTotal() $</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-total">
+                    <span class="total-label">Total:</span>
+                    <span class="total-amount">@Model.GetTotal().ToString("0.00") $</span>
+                </div>
+
+                <a href="@Url.Page("/Checkout/Index")" class="btn btn-checkout">
+                    Passer au paiement
+                    <span class="arrow">→</span>
+                </a>
+
+                <a href="@Url.Page("/Index")" class="btn btn-secondary">
+                    Continuer vos achats
+                </a>
+            </div>
+        </div>
+    }
+</div>

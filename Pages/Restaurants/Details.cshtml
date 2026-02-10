@@ -7,48 +7,128 @@
 
 @if (Model.Restaurant == null)
 {
-    <p>Restaurant introuvable.</p>
+    <div class="container">
+        <div class="error-state">
+            <div class="error-icon">❌</div>
+            <h3>Restaurant introuvable</h3>
+            <p>Le restaurant que vous recherchez n'existe pas.</p>
+            <a href="@Url.Page("/Index")" class="btn btn-primary">Retour à l'accueil</a>
+        </div>
+    </div>
 }
 else
 {
-    <section class="restaurant-header">
-        <img src="@Model.Restaurant.ImageUrl" alt="@Model.Restaurant.Name" class="restaurant-image" />
-        <div class="restaurant-info">
-            <h2>@Model.Restaurant.Name</h2>
-            <p>@Model.Restaurant.Description</p>
-            <p>@Model.Restaurant.Address</p>
-            <p class="tags">
-                Cuisine :
-                @string.Join(", ", Model.Restaurant.RestaurantTags.Select(rt => rt.Tag.Name))
-            </p>
+    <!-- Restaurant Header Section -->
+    <section class="restaurant-hero">
+        <img src="@Model.Restaurant.ImageUrl" alt="@Model.Restaurant.Name" class="hero-image" />
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="container">
+                <h1 class="restaurant-title">@Model.Restaurant.Name</h1>
+                <p class="restaurant-location">📍 @Model.Restaurant.Address</p>
+                <div class="restaurant-tags">
+                    <span class="cuisine-tag">🍽️ @Model.GetCuisineDisplay()</span>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section class="menu-section">
-        <h3>Menu</h3>
-
-        @if (!Model.Restaurant.Plats.Any())
-        {
-            <p>Aucun plat n'est disponible pour le moment.</p>
-        }
-        else
-        {
-            <div class="products">
-                @foreach (var plat in Model.Restaurant.Plats)
-                {
-                    <div class="product-card">
-                        <img src="@plat.ImageUrl" alt="@plat.Name" />
-                        <h3>@plat.Name</h3>
-                        <p>@plat.Description</p>
-                        <p class="price">@plat.Price $</p>
-                        <button onclick="location.href='@Url.Page(
-                            "/Cart/Add",
-                            new { platId = plat.Id, restaurantId = Model.Restaurant.Id })'">
-                            Ajouter au panier
-                        </button>
-                    </div>
-                }
-            </div>
-        }
+    <!-- Restaurant Description -->
+    <section class="restaurant-description">
+        <div class="container">
+            <p class="description-text">@Model.Restaurant.Description</p>
+        </div>
     </section>
+
+    <!-- Menu Section -->
+    <section class="menu-section">
+        <div class="container">
+            <h2 class="section-title">📋 Notre Menu</h2>
+
+            @if (!Model.Restaurant.Plats.Any())
+            {
+                <div class="empty-menu">
+                    <p>Aucun plat n'est disponible pour le moment.</p>
+                </div>
+            }
+            else
+            {
+                <div class="menu-grid">
+                    @foreach (var plat in Model.Restaurant.Plats)
+                    {
+                        <div class="menu-item-card">
+                            <!-- Image -->
+                            <div class="item-image-wrapper">
+                                @if (!string.IsNullOrEmpty(plat.ImageUrl))
+                                {
+                                    <img src="@plat.ImageUrl" alt="@plat.Name" class="item-image" />
+                                }
+                                else
+                                {
+                                    <div class="item-image-placeholder">🍽️</div>
+                                }
+                            </div>
+
+                            <!-- Content -->
+                            <div class="item-content">
+                                <h3 class="item-name">@plat.Name</h3>
+                                @if (!string.IsNullOrEmpty(plat.Description))
+                                {
+                                    <p class="item-description">@plat.Description</p>
+                                }
+
+                                <!-- Prix -->
+                                <p class="item-price">@plat.Price.ToString("0.00") $</p>
+
+                                <!-- Quantity Selector + Add Button -->
+                                <form method="get" action="@Url.Page("/Cart/Add")" class="item-action-form">
+                                    <input type="hidden" name="platId" value="@plat.Id" />
+                                    <input type="hidden" name="restaurantId" value="@Model.Restaurant.Id" />
+
+                                    <div class="quantity-control">
+                                        <button type="button" class="qty-btn qty-minus" onclick="decreaseQty(this)">−</button>
+                                        <input type="number" name="quantity" value="1" min="1" max="99" class="qty-input"
+                                               onchange="validateQuantity(this)"
+                                               oninput="validateQuantity(this)" />
+                                        <button type="button" class="qty-btn qty-plus" onclick="increaseQty(this)">+</button>
+                                    </div>
+
+                                    <button type="submit" class="btn-add-cart">
+                                        🛒 Ajouter
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <script>
+        function increaseQty(btn) {
+            const form = btn.closest('.item-action-form');
+            const input = form.querySelector('.qty-input');
+            if (parseInt(input.value) < 99) {
+                input.value = parseInt(input.value) + 1;
+            }
+        }
+
+        function decreaseQty(btn) {
+            const form = btn.closest('.item-action-form');
+            const input = form.querySelector('.qty-input');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+
+        function validateQuantity(input) {
+            let value = parseInt(input.value) || 1;
+            if (value < 1) value = 1;
+            if (value > 99) value = 99;
+            input.value = value;
+        }
+    </script>
 }
+
+

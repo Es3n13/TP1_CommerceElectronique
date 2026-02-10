@@ -21,7 +21,7 @@ namespace BoutiqueElegance.Pages.Restaurants
         {
             Restaurant = await _context.Restaurants
                 .Include(r => r.RestaurantTags)
-                    .ThenInclude(rt => rt.Tag)
+                .ThenInclude(rt => rt.Tag)
                 .Include(r => r.Plats)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
@@ -32,5 +32,22 @@ namespace BoutiqueElegance.Pages.Restaurants
 
             return Page();
         }
+
+        /// Formate les tags/cuisine du restaurant
+        public string GetCuisineDisplay()
+        {
+            if (Restaurant?.RestaurantTags == null || !Restaurant.RestaurantTags.Any())
+                return "Cuisine générale";
+
+            return string.Join(", ", Restaurant.RestaurantTags.Select(rt => rt.Tag.Name));
+        }
+
+        /// Retourne une classe CSS basée sur la disponibilité
+        public string GetAvailabilityClass()
+        {
+            // À implémenter avec votre logique de disponibilité
+            return "available";
+        }
     }
 }
+

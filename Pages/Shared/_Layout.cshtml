@@ -14,7 +14,6 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="~/css/style.css" />
-    <link rel="stylesheet" href="~/css/Layout.css" />
 </head>
 <body>
     <header class="site-header">
@@ -23,7 +22,7 @@
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark-blue shadow-sm w-100">
                 <div class="container-fluid">
                     <a class="navbar-brand fw-bold" href="@Url.Page("/Index")">
-                        Élégance<span class="text-black">Shop</span>
+                        Élégance<span class="text-gold">Shop</span>
                     </a>
 
                     <button class="navbar-toggler" type="button"
@@ -37,17 +36,19 @@
 
                     <div class="collapse navbar-collapse" id="mainNavbar">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                            
+
+                            @* Bonjour, Nom *@
                             @if (User.Identity?.IsAuthenticated ?? false)
                             {
                                 <li class="nav-item d-flex align-items-center nav-hello">
-                                    <span class="navbar-text me-3 nav-link-inline">
+                                    <span class="navbar-text me-3 nav-link-inline nav-hello-text">
                                         <i class="bi bi-person-circle me-1"></i>
                                         <span>Bonjour, @User.Identity.Name</span>
                                     </span>
                                 </li>
                             }
 
+                            @* Accueil: toujours visible *@
                             <li class="nav-item">
                                 <a class="nav-link nav-link-inline" href="@Url.Page("/Index")">
                                     <i class="bi bi-house-door me-1"></i>
@@ -55,17 +56,19 @@
                                 </a>
                             </li>
 
-                            @if (User.Identity?.IsAuthenticated ?? false && User.IsInRole("Vendeur"))
+                            @* Vendeur UNIQUEMENT *@
+                            @if (User.IsInRole("Vendeur"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link nav-link-inline" href="@Url.Page("/Sales/Index")">
                                         <i class="bi bi-receipt-cutoff me-1"></i>
-                                        <span>Commandes du restaurant</span>
+                                        <span>Commandes</span>
                                     </a>
                                 </li>
                             }
 
-                            @if (User.Identity?.IsAuthenticated ?? false && User.IsInRole("Client"))
+                            @* Client UNIQUEMENT *@
+                            @if (User.IsInRole("Client"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link nav-link-inline" href="@Url.Page("/Cart/Index")">
@@ -81,6 +84,7 @@
                                 </li>
                             }
 
+                            @* Liens visibles pour tout utilisateur authentifié (peu importe le rôle) *@
                             @if (User.Identity?.IsAuthenticated ?? false)
                             {
                                 <li class="nav-item">
@@ -100,6 +104,7 @@
                             }
                             else
                             {
+                                @* Liens pour utilisateur non connecté *@
                                 <li class="nav-item">
                                     <a class="nav-link nav-link-inline" href="@Url.Page("/Account/Login")">
                                         <i class="bi bi-box-arrow-in-right me-1"></i>
@@ -114,6 +119,7 @@
                                 </li>
                             }
                         </ul>
+
 
                         <div class="navbar-social ms-lg-3 mt-3 mt-lg-0">
                             <a href="#" class="nav-social-icon">

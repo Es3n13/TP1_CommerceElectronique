@@ -5,39 +5,64 @@
     ViewData["Title"] = "Mes commandes";
 }
 
-<h2>Mes commandes</h2>
+<div class="container">
+    <h2 class="page-title">Mes commandes</h2>
 
-@if (!Model.Orders.Any())
-{
-    <p>Vous n'avez pas encore de commande.</p>
-}
-else
-{
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Date</th>
-                <th>Montant</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+    @if (!Model.Orders.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">📦</div>
+            <h3>Aucune commande</h3>
+            <p>Vous n'avez pas encore de commande. Commencez à commander dès maintenant!</p>
+            <a href="@Url.Page("/Index")" class="btn btn-primary">Découvrir nos plats</a>
+        </div>
+    }
+    else
+    {
+        <div class="orders-grid">
             @foreach (var order in Model.Orders)
             {
-                <tr>
-                    <td>@order.Id</td>
-                    <td>@order.CreatedAt.ToLocalTime().ToString("g")</td>
-                    <td>@order.TotalAmount $</td>
-                    <td>@order.Status</td>
-                    <td>
-                        <a href="@Url.Page("/Orders/Details", new { id = order.Id })">
-                            Détails / Facture
+                <div class="order-card">
+                    <!-- Order Header -->
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3 class="order-number">Commande #@order.Id</h3>
+                            <p class="order-date">
+                                📅 @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
+                            </p>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge @Model.GetStatusClass(order.Status)">
+                                @Model.GetStatusLabel(order.Status)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Order Body -->
+                    <div class="order-body">
+                        <div class="order-items-preview">
+                            <p class="items-count">
+                                <strong>@order.Items.Count</strong> article@(order.Items.Count > 1 ? "s" : "")
+                            </p>
+                        </div>
+
+                        <div class="order-total">
+                            <span class="total-label">Total:</span>
+                            <span class="total-amount">@order.TotalAmount.ToString("0.00") $</span>
+                        </div>
+                    </div>
+
+                    <!-- Order Footer -->
+                    <div class="order-footer">
+                        <a href="@Url.Page("/Orders/Details", new { id = order.Id })" class="btn btn-view-details">
+                            Voir les détails
+                            <span class="arrow">→</span>
                         </a>
-                    </td>
-                </tr>
+                    </div>
+                    <div class="summary-divider"></div>
+                </div>
             }
-        </tbody>
-    </table>
-}
+        </div>
+    }
+</div>
+

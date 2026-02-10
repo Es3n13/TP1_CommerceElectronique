@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using BoutiqueElegance.Data;
 using BoutiqueElegance.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -23,11 +23,11 @@ namespace BoutiqueElegance.Pages.Orders
         public async Task<IActionResult> OnGetAsync(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
             Order = await _context.Orders
                 .Include(o => o.Items)
-                    .ThenInclude(i => i.Plat)
+                .ThenInclude(i => i.Plat)
                 .Include(o => o.Invoice)
+                .Include(o => o.Restaurant)
                 .FirstOrDefaultAsync(o => o.Id == id && o.ClientId == userId);
 
             if (Order == null)
@@ -35,6 +35,31 @@ namespace BoutiqueElegance.Pages.Orders
 
             return Page();
         }
+
+        /// Retourne la classe CSS du badge de statut
+        public string GetStatusClass(string status)
+        {
+            return status?.ToLower() switch
+            {
+                "pending" => "status-pending",
+                "paid" => "status-paid",
+                "failed" => "status-failed",
+                _ => "status-pending"
+            };
+        }
+
+        /// Retourne le label du statut avec emoji
+        public string GetStatusLabel(string status)
+        {
+            return status?.ToLower() switch
+            {
+                "pending" => "⏳ En attente",
+                "paid" => "✅ Payée",
+                "failed" => "❌ Échouée",
+                _ => status ?? "Inconnue"
+            };
+        }
     }
 }
+
 

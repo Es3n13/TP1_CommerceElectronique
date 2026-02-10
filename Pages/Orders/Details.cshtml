@@ -5,39 +5,96 @@
     ViewData["Title"] = "Détails de la commande";
 }
 
-@if (Model.Order == null)
-{
-    <p>Commande introuvable.</p>
-}
-else
-{
-    <h2>Commande #@Model.Order.Id</h2>
-    <p>Date : @Model.Order.CreatedAt.ToLocalTime().ToString("g")</p>
-    <p>Status : @Model.Order.Status</p>
+<div class="container">
+    @if (Model.Order == null)
+    {
+        <div class="error-state">
+            <div class="error-icon">❌</div>
+            <h3>Commande introuvable</h3>
+            <p>La commande que vous recherchez n'existe pas.</p>
+            <a href="@Url.Page("/Orders/Index")" class="btn btn-primary">Retour à mes commandes</a>
+        </div>
+    }
+    else
+    {
+        <!-- Header Section -->
+        <div class="order-details-header">
+            <div class="header-content">
+                <a href="@Url.Page("/Orders/Index")" class="link-back">← Retour à mes commandes</a>
+                <h2 class="page-title">Commande #@Model.Order.Id</h2>
+            </div>
+        </div>
 
-    <h3>Facture</h3>
-    <p>Montant total : @Model.Order.TotalAmount $</p>
+        <div class="order-details-wrapper">
+            <!-- Main Content -->
+            <div class="order-details-main">
+                <!-- Order Info Card -->
+                <div class="info-card">
+                    <h3 class="card-title">Informations de la commande</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Date de commande</span>
+                            <p class="info-value">@Model.Order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")</p>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Statut</span>
+                            <p class="info-value">
+                                <span class="status-badge @Model.GetStatusClass(Model.Order.Status)">
+                                    @Model.GetStatusLabel(Model.Order.Status)
+                                </span>
+                            </p>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Restaurant</span>
+                            <p class="info-value">@(Model.Order.Restaurant?.Name ?? "Non spécifié")</p>
+                        </div>
+                    </div>
+                </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Plat</th>
-                <th>Quantité</th>
-                <th>Prix unitaire</th>
-                <th>Sous-total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Order.Items)
-            {
-                <tr>
-                    <td>@item.Plat.Name</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.UnitPrice $</td>
-                    <td>@(item.UnitPrice* item.Quantity) $</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                <!-- Items Section -->
+                <div class="items-card">
+                    <h3 class="card-title">Articles commandés</h3>
+                    <div class="order-items-list">
+                        @foreach (var item in Model.Order.Items)
+                        {
+                            <div class="order-item-row">
+                                <div class="item-details">
+                                    <h4 class="item-name">@item.Plat.Name</h4>
+                                    @if (!string.IsNullOrEmpty(item.Plat.Description))
+                                    {
+                                        <p class="item-description">@item.Plat.Description</p>
+                                    }
+                                </div>
+                                <div class="item-quantity">
+                                    <span class="qty-label">Quantité:</span>
+                                    <span class="qty-value">@item.Quantity</span>
+                                </div>
+                                <div class="item-price">
+                                    <span class="price-label">Prix unitaire:</span>
+                                    <span class="price-value">@item.UnitPrice $</span>
+                                </div>
+                                <div class="item-subtotal">
+                                    <span class="subtotal-label">Sous-total:</span>
+                                    <span class="subtotal-value">@(item.UnitPrice* item.Quantity) $</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
 
+            <!-- Sidebar Summary -->
+            <div class="order-details-sidebar">
+                <div class="summary-card">
+
+                    <div class="summary-divider"></div>
+
+                    <div class="summary-total">
+                        <span class="total-label">Total:</span>
+                        <span class="total-amount">@Model.Order.TotalAmount $</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
