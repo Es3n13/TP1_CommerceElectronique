@@ -23,7 +23,7 @@
             @foreach (var order in Model.Orders)
             {
                 <div class="order-card">
-                    <!-- Order Header -->
+                    <!-- En-tête -->
                     <div class="order-header">
                         <div class="order-info">
                             <h3 class="order-number">Commande #@order.Id</h3>
@@ -38,7 +38,7 @@
                         </div>
                     </div>
 
-                    <!-- Order Body -->
+                    <!-- Commande -->
                     <div class="order-body">
                         <div class="order-items-preview">
                             <p class="items-count">
@@ -52,7 +52,7 @@
                         </div>
                     </div>
 
-                    <!-- Order Footer -->
+                    <!-- Footer -->
                     <div class="order-footer">
                         <a href="@Url.Page("/Orders/Details", new { id = order.Id })" class="btn btn-view-details">
                             Voir les détails

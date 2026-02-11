@@ -41,13 +41,6 @@ namespace BoutiqueElegance.Pages.Restaurants
 
             return string.Join(", ", Restaurant.RestaurantTags.Select(rt => rt.Tag.Name));
         }
-
-        /// Retourne une classe CSS basée sur la disponibilité
-        public string GetAvailabilityClass()
-        {
-            // À implémenter avec votre logique de disponibilité
-            return "available";
-        }
     }
 }
 

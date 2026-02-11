@@ -51,7 +51,7 @@ namespace BoutiqueElegance.Pages.Checkout
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var client = await _context.Users.FirstAsync(u => u.Id == userId);
 
-            // 1) Créer un PaymentIntent Stripe (sandbox)
+            // Créer un PaymentIntent Stripe (sandbox)
             var amountInCents = (long)(Total * 100);
 
             var paymentIntentService = new PaymentIntentService();
@@ -65,10 +65,7 @@ namespace BoutiqueElegance.Pages.Checkout
 
             var intent = await paymentIntentService.CreateAsync(createOptions);
 
-            // Pour ton TP, on considère ici que le paiement est validé.
-            // (En vrai, il faudrait confirmer le PaymentIntent côté client avec Stripe.js.) [web:20]
-
-            // 2) Créer la commande
+            // Créer la commande
             var firstPlat = await _context.Plats
                 .Include(p => p.Restaurant)
                 .FirstAsync(p => p.Id == Cart.Items.First().PlatId);
@@ -96,7 +93,7 @@ namespace BoutiqueElegance.Pages.Checkout
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // 3) Créer la facture
+            // Créer la facture
             var invoice = new BoutiqueElegance.Models.Invoice
             {
                 OrderId = order.Id,
@@ -105,7 +102,7 @@ namespace BoutiqueElegance.Pages.Checkout
             };
             _context.Invoices.Add(invoice);
 
-            // 4) Vider le panier
+            // Vider le panier
             _context.CartItems.RemoveRange(Cart.Items);
             _context.Carts.Remove(Cart);
 

@@ -6,19 +6,19 @@
 }
 
 <div class="container">
-    <!-- Page Title -->
+    <!-- Titre de la page -->
     <div class="checkout-header">
         <h1 class="page-title">Finaliser votre commande</h1>
     </div>
 
-    <!-- Main Checkout Layout -->
+    <!-- Checkout Layout principal -->
     <div class="checkout-wrapper">
-        <!-- Left: Order Summary -->
+        <!-- Résumé de la commande -->
         <div class="checkout-summary-section">
             <div class="summary-card">
                 <h2 class="section-title">📋 Résumé de votre commande</h2>
 
-                <!-- Order Items -->
+                <!-- Items de la commande -->
                 <div class="order-items-summary">
                     @foreach (var item in Model.Cart.Items)
                     {
@@ -36,25 +36,24 @@
                 <!-- Divider -->
                 <div class="summary-divider"></div>
 
-                <!-- Final Total -->
+                <!-- Total final -->
                 <div class="final-total">
                     <span class="total-label">Total à payer:</span>
                     <span class="total-amount">@Model.Total.ToString("0.00") $</span>
                 </div>
 
-                <!-- Back to Cart Link -->
+                <!-- Retour au panier -->
                 <a href="@Url.Page("/Cart/Index")" class="link-back">← Retour au panier</a>
             </div>
         </div>
 
-        <!-- Right: Payment Form -->
+        <!-- Formulaire ee paiement -->
         <div class="checkout-payment-section">
             <div class="payment-card">
                 <h2 class="section-title">💳 Informations de paiement</h2>
 
-                <!-- Payment Form -->
                 <form method="post" class="payment-form">
-                    <!-- Cardholder Name -->
+                    <!-- Nom sur la carte -->
                     <div class="form-group">
                         <label for="cardHolder" class="form-label">Nom sur la carte</label>
                         <input type="text"
@@ -76,7 +75,7 @@
                                required />
                     </div>
 
-                    <!-- Card Number -->
+                    <!-- Numéro de la carte -->
                     <div class="form-group">
                         <label for="cardNumber" class="form-label">Numéro de carte</label>
                         <input type="text"
@@ -88,7 +87,7 @@
                                required />
                     </div>
 
-                    <!-- Expiry & CVC Row -->
+                    <!-- Expiration & CVC -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="expiry" class="form-label">Expiration</label>
@@ -112,7 +111,7 @@
                         </div>
                     </div>
 
-                    <!-- Postal Code -->
+                    <!-- Code postal -->
                     <div class="form-group">
                         <label for="postalCode" class="form-label">Code postal</label>
                         <input type="text"
@@ -122,14 +121,14 @@
                                required />
                     </div>
 
-                    <!-- Payment Button -->
+                    <!-- Bouton payer -->
                     <button type="submit" class="btn-pay">
                         Payer @Model.Total.ToString("0.00") $
                         <span class="btn-arrow">→</span>
                     </button>
                 </form>
 
-                <!-- Security Info -->
+                <!-- Info Sécurité -->
                 <div class="security-info">
                     <span class="security-icon">🔒</span>
                     <p>Vos données sont sécurisées par <strong>Stripe</strong></p>

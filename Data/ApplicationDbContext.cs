@@ -31,7 +31,7 @@ namespace BoutiqueElegance.Data
                 if (context.Restaurants.Any())
                     return;
 
-                // 1) Créer les tags
+                // Créer les tags
                 string[] tagNames = { "Togolaise", "Italienne", "Française", "Asiatique" };
 
                 foreach (var name in tagNames)
@@ -43,12 +43,12 @@ namespace BoutiqueElegance.Data
                 }
                 context.SaveChanges();
 
-                // 2) Récupérer les tags
+                // Récupérer les tags
                 var togolaise = context.Tags.Single(t => t.Name == "Togolaise");
                 var italienne = context.Tags.Single(t => t.Name == "Italienne");
                 var francaise = context.Tags.Single(t => t.Name == "Française");
 
-                // 3) Créer les restaurants
+                // Créer les restaurants
                 var r1 = new Restaurant
                 {
                     Name = "Mama Togo",
@@ -76,7 +76,7 @@ namespace BoutiqueElegance.Data
                 context.Restaurants.AddRange(r1, r2, r3);
                 context.SaveChanges();
 
-                // 4) Lier restaurants et tags (RestaurantTags)
+                // Lier restaurants et tags (RestaurantTags)
                 context.RestaurantTags.AddRange(
                     new RestaurantTag { RestaurantId = r1.Id, TagId = togolaise.Id },
                     new RestaurantTag { RestaurantId = r2.Id, TagId = italienne.Id },
@@ -84,7 +84,7 @@ namespace BoutiqueElegance.Data
                 );
                 context.SaveChanges();
 
-                // 5) Plats
+                // Plats
                 var plats = new[]
                 {
                     new Plat {

@@ -18,7 +18,7 @@
 }
 else
 {
-    <!-- Restaurant Header Section -->
+    <!-- En-tête restaurant -->
     <section class="restaurant-hero">
         <img src="@Model.Restaurant.ImageUrl" alt="@Model.Restaurant.Name" class="hero-image" />
         <div class="hero-overlay"></div>
@@ -33,14 +33,14 @@ else
         </div>
     </section>
 
-    <!-- Restaurant Description -->
+    <!-- Description -->
     <section class="restaurant-description">
         <div class="container">
             <p class="description-text">@Model.Restaurant.Description</p>
         </div>
     </section>
 
-    <!-- Menu Section -->
+    <!-- Menu -->
     <section class="menu-section">
         <div class="container">
             <h2 class="section-title">📋 Notre Menu</h2>
@@ -69,7 +69,7 @@ else
                                 }
                             </div>
 
-                            <!-- Content -->
+                            <!-- Contenu -->
                             <div class="item-content">
                                 <h3 class="item-name">@plat.Name</h3>
                                 @if (!string.IsNullOrEmpty(plat.Description))
@@ -80,7 +80,7 @@ else
                                 <!-- Prix -->
                                 <p class="item-price">@plat.Price.ToString("0.00") $</p>
 
-                                <!-- Quantity Selector + Add Button -->
+                                <!-- Sélecteur de quantité et bouton ajouter -->
                                 <form method="get" action="@Url.Page("/Cart/Add")" class="item-action-form">
                                     <input type="hidden" name="platId" value="@plat.Id" />
                                     <input type="hidden" name="restaurantId" value="@Model.Restaurant.Id" />
