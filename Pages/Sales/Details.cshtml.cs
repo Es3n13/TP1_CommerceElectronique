@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace BoutiqueElegance.Pages.Orders
+namespace BoutiqueElegance.Pages.Sales
 {
-    [Authorize(Roles = "Client")]
+    [Authorize(Roles = "Vendeur")]
     public class DetailsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -22,13 +22,26 @@ namespace BoutiqueElegance.Pages.Orders
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
+            // Id de l'utilisateur vendeur connecté
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            // Récupérer le restaurant associé à ce vendeur
+            var restaurant = await _context.Restaurants
+                .FirstOrDefaultAsync(r => r.SellerId == userId);
+
+            if (restaurant == null)
+            {
+                return NotFound();
+            }
+
+            // Charger la commande uniquement si elle appartient à ce restaurant
             Order = await _context.Orders
                 .Include(o => o.Items)
-                .ThenInclude(i => i.Plat)
+                    .ThenInclude(i => i.Plat)
                 .Include(o => o.Invoice)
                 .Include(o => o.Restaurant)
-                .FirstOrDefaultAsync(o => o.Id == id && o.ClientId == userId);
+                .Include(o => o.Client)
+                .FirstOrDefaultAsync(o => o.Id == id && o.RestaurantId == restaurant.Id);
 
             if (Order == null)
                 return NotFound();
@@ -36,7 +49,6 @@ namespace BoutiqueElegance.Pages.Orders
             return Page();
         }
 
-        /// Retourne la classe CSS du badge de statut
         public string GetStatusClass(string status)
         {
             return status?.ToLower() switch
@@ -48,7 +60,6 @@ namespace BoutiqueElegance.Pages.Orders
             };
         }
 
-        /// Retourne le label du statut avec emoji
         public string GetStatusLabel(string status)
         {
             return status?.ToLower() switch
@@ -61,5 +72,4 @@ namespace BoutiqueElegance.Pages.Orders
         }
     }
 }
-
 

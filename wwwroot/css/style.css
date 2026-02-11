@@ -837,81 +837,177 @@ body {
         margin-top: auto;
     }
 
-    /* Quantity Control */
+    /* ===== Contrôle de quantité ===== */
+    .item-action-form {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: auto;
+    }
+
     .quantity-control {
         display: flex;
         align-items: center;
         gap: 0;
         border: 2px solid var(--gold);
-        border-radius: 10px;
+        border-radius: 12px;
         overflow: hidden;
-        background: white;
+        background: linear-gradient(135deg, var(--cream), white);
+        box-shadow: 0 2px 8px rgba(176, 141, 87, 0.1);
+        transition: all 0.3s ease;
     }
 
+        .quantity-control:hover {
+            box-shadow: 0 4px 12px rgba(176, 141, 87, 0.2);
+            border-color: #C9A876;
+        }
+
+    /* Boutons quantité (+/-) */
     .qty-btn {
         background: transparent;
         border: none;
         color: var(--gold);
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
         cursor: pointer;
-        padding: 8px 12px;
+        padding: 10px 12px;
         transition: all 0.2s ease;
         display: flex;
         align-items: center;
         justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        position: relative;
     }
 
         .qty-btn:hover {
-            background: var(--cream);
-            color: var(--dark-blue);
+            background: var(--gold);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .qty-btn:active {
+            transform: scale(0.95);
         }
 
     .qty-minus,
     .qty-plus {
-        width: 36px;
-        padding: 8px 0;
+        width: 40px;
+        padding: 0;
     }
 
+    /* Inpuut Quantité*/
     .qty-input {
         border: none;
         text-align: center;
-        width: 50px;
-        font-size: 14px;
-        font-weight: 600;
+        width: 60px;
+        font-size: 15px;
+        font-weight: 700;
         color: var(--dark-blue);
-        background: white;
-        padding: 6px 0;
+        background: transparent;
+        padding: 10px 6px;
+        border-left: 1px solid rgba(176, 141, 87, 0.2);
+        border-right: 1px solid rgba(176, 141, 87, 0.2);
     }
 
         .qty-input:focus {
             outline: none;
+            background: rgba(176, 141, 87, 0.05);
         }
 
-    /* Add to Cart Button */
+        .qty-input::-webkit-outer-spin-button,
+        .qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .qty-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+    /* ===== Bouton ajouter au panier */
     .btn-add-cart {
         flex: 1;
         background: linear-gradient(135deg, var(--gold), #C9A876);
         color: white;
         border: none;
-        padding: 10px 16px;
-        border-radius: 10px;
-        font-weight: 600;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 15px;
         cursor: pointer;
-        font-size: 14px;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(176, 141, 87, 0.25);
+        min-height: 40px;
     }
 
         .btn-add-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(176, 141, 87, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(176, 141, 87, 0.4);
+            background: linear-gradient(135deg, #C9A876, var(--gold));
         }
 
         .btn-add-cart:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(176, 141, 87, 0.25);
         }
 
+        .btn-add-cart:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Animation d'ajout au panier */
+        .btn-add-cart i {
+            font-size: 17px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-add-cart:hover i {
+            transform: translateX(2px);
+        }
+
+    /* Adjustments responsive */
+    @media (max-width: 768px) {
+        .item-action-form {
+            gap: 10px;
+        }
+
+        .quantity-control {
+            border-radius: 10px;
+        }
+
+        .qty-btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 8px 10px;
+            font-size: 16px;
+        }
+
+        .qty-input {
+            width: 50px;
+            font-size: 14px;
+            padding: 8px 4px;
+        }
+
+        .btn-add-cart {
+            padding: 10px 12px;
+            font-size: 14px;
+            min-height: 36px;
+        }
+
+            .btn-add-cart i {
+                font-size: 15px;
+            }
+    }
     /* Error State */
     .error-state {
         text-align: center;

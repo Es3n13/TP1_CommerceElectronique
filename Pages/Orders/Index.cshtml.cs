@@ -46,9 +46,9 @@ namespace BoutiqueElegance.Pages.Orders
         {
             return status?.ToLower() switch
             {
-                "pending" => "⏳ En attente",
-                "paid" => "✅ Payée",
-                "failed" => "❌ Échouée",
+                "pending" => "En attente",
+                "paid" => "Payée",
+                "failed" => "Échouée",
                 _ => status ?? "Inconnue"
             };
         }

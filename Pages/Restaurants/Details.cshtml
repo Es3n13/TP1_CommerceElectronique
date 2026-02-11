@@ -1,6 +1,5 @@
 ﻿@page "{id:int}"
 @model BoutiqueElegance.Pages.Restaurants.DetailsModel
-
 @{
     ViewData["Title"] = Model.Restaurant?.Name ?? "Restaurant";
 }
@@ -9,10 +8,14 @@
 {
     <div class="container">
         <div class="error-state">
-            <div class="error-icon">❌</div>
+            <div class="error-icon">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
             <h3>Restaurant introuvable</h3>
             <p>Le restaurant que vous recherchez n'existe pas.</p>
-            <a href="@Url.Page("/Index")" class="btn btn-primary">Retour à l'accueil</a>
+            <a href="@Url.Page("/Index")" class="btn btn-primary">
+                <i class="bi bi-house-door me-2"></i>Retour à l'accueil
+            </a>
         </div>
     </div>
 }
@@ -25,9 +28,13 @@ else
         <div class="hero-content">
             <div class="container">
                 <h1 class="restaurant-title">@Model.Restaurant.Name</h1>
-                <p class="restaurant-location">📍 @Model.Restaurant.Address</p>
+                <p class="restaurant-location">
+                    <i class="bi bi-geo-alt-fill me-2"></i>@Model.Restaurant.Address
+                </p>
                 <div class="restaurant-tags">
-                    <span class="cuisine-tag">🍽️ @Model.GetCuisineDisplay()</span>
+                    <span class="cuisine-tag">
+                        <i class="bi bi-cup-hot me-2"></i>@Model.GetCuisineDisplay()
+                    </span>
                 </div>
             </div>
         </div>
@@ -43,11 +50,16 @@ else
     <!-- Menu -->
     <section class="menu-section">
         <div class="container">
-            <h2 class="section-title">📋 Notre Menu</h2>
+            <h2 class="section-title">
+                <i class="bi bi-card-list me-2"></i>Notre Menu
+            </h2>
 
             @if (!Model.Restaurant.Plats.Any())
             {
                 <div class="empty-menu">
+                    <div class="empty-menu-icon">
+                        <i class="bi bi-inbox"></i>
+                    </div>
                     <p>Aucun plat n'est disponible pour le moment.</p>
                 </div>
             }
@@ -57,18 +69,6 @@ else
                     @foreach (var plat in Model.Restaurant.Plats)
                     {
                         <div class="menu-item-card">
-                            <!-- Image -->
-                            <div class="item-image-wrapper">
-                                @if (!string.IsNullOrEmpty(plat.ImageUrl))
-                                {
-                                    <img src="@plat.ImageUrl" alt="@plat.Name" class="item-image" />
-                                }
-                                else
-                                {
-                                    <div class="item-image-placeholder">🍽️</div>
-                                }
-                            </div>
-
                             <!-- Contenu -->
                             <div class="item-content">
                                 <h3 class="item-name">@plat.Name</h3>
@@ -86,15 +86,19 @@ else
                                     <input type="hidden" name="restaurantId" value="@Model.Restaurant.Id" />
 
                                     <div class="quantity-control">
-                                        <button type="button" class="qty-btn qty-minus" onclick="decreaseQty(this)">−</button>
+                                        <button type="button" class="qty-btn qty-minus" onclick="decreaseQty(this)" title="Diminuer la quantité">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
                                         <input type="number" name="quantity" value="1" min="1" max="99" class="qty-input"
                                                onchange="validateQuantity(this)"
                                                oninput="validateQuantity(this)" />
-                                        <button type="button" class="qty-btn qty-plus" onclick="increaseQty(this)">+</button>
+                                        <button type="button" class="qty-btn qty-plus" onclick="increaseQty(this)" title="Augmenter la quantité">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
                                     </div>
 
                                     <button type="submit" class="btn-add-cart">
-                                        🛒 Ajouter
+                                        <i class="bi bi-cart-plus me-2"></i>Ajouter
                                     </button>
                                 </form>
                             </div>
@@ -130,5 +134,6 @@ else
         }
     </script>
 }
+
 
 
