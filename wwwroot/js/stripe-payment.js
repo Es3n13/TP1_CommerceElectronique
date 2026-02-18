@@ -1,98 +1,111 @@
-﻿namespace BoutiqueElegance.wwwroot.js
-{
-    public class stripe_payment
-    {
-        // Initialiser Stripe
-        const stripe = Stripe('pk_test_51Sz4rwD8j80AoLJiDLsC5s0fC8CVmKNnaKn5FnpHuEuMH1C4Ah5JZGL8mPuOdhm3MdnNnMGQ8LpEQMLeYgOzZ5q000dtUaDAEJ');
-        const elements = stripe.elements();
-        const cardElement = elements.create('card');
-        cardElement.mount('#card-element');
+﻿// Initialiser Stripe avec la clé publique passée depuis le Razor
+const stripe = Stripe(stripePublicKey);
+const elements = stripe.elements();
+const cardElement = elements.create('card');
 
-// Afficher les erreurs du formulaire
-    cardElement.on('change', (event) => {
-        const displayError = document.getElementById('card-errors');
-        if (event.error) {
-            displayError.textContent = event.error.message;
-        } else {
-            displayError.textContent = '';
-        }
-    });
+// Monter le Card Element
+cardElement.mount('#card-element');
 
-    // Soumettre le formulaire
-    const form = document.getElementById('payment-form');
+// Afficher les erreurs en temps réel
+cardElement.on('change', (event) => {
+    const displayError = document.getElementById('card-errors');
+    if (event.error) {
+        displayError.textContent = event.error.message;
+    } else {
+        displayError.textContent = '';
+    }
+});
+
+// Soumettre le formulaire
+const form = document.getElementById('payment-form');
+if (form) {
     form.addEventListener('submit', handleSubmit);
+}
 
-    async function handleSubmit(e) {
-        e.preventDefault();
+async function handleSubmit(e) {
+    e.preventDefault();
 
-        // Récupérer les valeurs du formulaire
-        const cardholderName = document.getElementById('cardHolder').value;
-        const email = document.getElementById('email').value;
+    // Récupérer les valeurs du formulaire
+    const cardholderName = document.getElementById('cardHolder').value;
+    const email = document.getElementById('email').value;
+    const postalCode = document.getElementById('postalCode').value;
 
-        // Désactiver le bouton pendant la requête
-        const submitButton = document.getElementById('submit-btn');
-        submitButton.disabled = true;
+    // Récupérer les éléments UI
+    const submitButton = document.getElementById('submit-btn');
+    const errorDiv = document.getElementById('card-errors');
 
-        try {
-            // Étape 1: Créer le PaymentIntent
-            const response = await fetch('/Checkout?handler=CreatePaymentIntent', {
+    // Désactiver le bouton pendant la requête
+    submitButton.disabled = true;
+    errorDiv.textContent = '';
+
+    try {
+        // Étape 1: Créer le PaymentIntent (appel au backend)
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                cardholderName: cardholderName,
+                email: email
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erreur serveur: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.clientSecret) {
+            throw new Error('Pas de clientSecret reçu du serveur');
+        }
+
+        const clientSecret = data.clientSecret;
+
+        // Étape 2: Confirmer le paiement avec Stripe
+        const result = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: cardholderName,
+                    email: email,
+                    address: {
+                        postal_code: postalCode
+                    }
+                }
+            }
+        });
+
+        if (result.error) {
+            // Afficher l'erreur Stripe
+            errorDiv.textContent = result.error.message;
+            submitButton.disabled = false;
+        } else if (result.paymentIntent.status === 'succeeded') {
+            // Paiement réussi! Créer la commande
+            const orderResponse = await fetch(window.location.href + '?handler=ConfirmOrder', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    cardholderName: cardholderName,
-                    email: email
+                    paymentIntentId: result.paymentIntent.id
                 })
             });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'Erreur serveur');
+            const orderData = await orderResponse.json();
+
+            if (orderResponse.ok && orderData.orderId) {
+                // Rediriger vers la page de commande
+                window.location.href = `/Orders/Details?id=${orderData.orderId}`;
+            } else {
+                throw new Error(orderData.error || 'Erreur création commande');
             }
-
-            const clientSecret = data.clientSecret;
-
-            // Étape 2: Confirmer le paiement avec Stripe
-            const result = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: {
-                    card: cardElement,
-                    billing_details: {
-                        name: cardholderName,
-                        email: email
-                    }
-                }
-            });
-
-            if (result.error) {
-                // Afficher l'erreur Stripe
-                document.getElementById('card-errors').textContent = result.error.message;
-                submitButton.disabled = false;
-            } else if (result.paymentIntent.status === 'succeeded') {
-                // Si paiement réussi Créer la commande
-                const orderResponse = await fetch('/Checkout?handler=ConfirmOrder', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        paymentIntentId: result.paymentIntent.id
-                    })
-                });
-
-                const orderData = await orderResponse.json();
-                if (orderResponse.ok) {
-                    // Rediriger vers la page de commande
-                    window.location.href = `/Orders/Details?id=${orderData.orderId}`;
-                } else {
-                    throw new Error(orderData.error || 'Erreur création commande');
-                }
-            }
-        } catch (error) {
-            document.getElementById('card-errors').textContent = error.message;
-            submitButton.disabled = false;
+        } else {
+            throw new Error('Le paiement n\'a pas été confirmé');
         }
-    }
-
+    } catch (error) {
+        errorDiv.textContent = `Erreur: ${error.message}`;
+        submitButton.disabled = false;
     }
 }
