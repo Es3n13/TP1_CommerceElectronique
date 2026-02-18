@@ -59,7 +59,7 @@ namespace BoutiqueElegance.Pages.Checkout
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var client = await _context.Users.FirstAsync(u => u.Id == userId);
 
-            // Créer un PaymentIntent Stripe (sandbox)
+            // Créer un PaymentIntent Stripe
             var amountInCents = (long)(Total * 100);
             var paymentIntentService = new PaymentIntentService();
             var createOptions = new PaymentIntentCreateOptions
@@ -72,84 +72,51 @@ namespace BoutiqueElegance.Pages.Checkout
 
             var intent = await paymentIntentService.CreateAsync(createOptions);
 
-            // Retourner le ClientSecret
-            ClientSecret = intent.ClientSecret;
-            StripePublicKey = _configuration["Stripe:PublicKey"] ?? string.Empty;
-            return Page(); // Reste sur la même page
+            // Créer la commande
+            var firstPlat = await _context.Plats
+                .Include(p => p.Restaurant)
+                .FirstAsync(p => p.Id == Cart.Items.First().PlatId);
+
+            var order = new Order
+            {
+                ClientId = client.Id,
+                RestaurantId = firstPlat.RestaurantId,
+                CreatedAt = DateTime.UtcNow,
+                TotalAmount = Total,
+                Status = "Paid",
+                StripePaymentIntentId = intent.Id
+            };
+
+            foreach (var item in Cart.Items)
+            {
+                order.Items.Add(new OrderItem
+                {
+                    PlatId = item.PlatId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice
+                });
+            }
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            // Créer la facture
+            var invoice = new BoutiqueElegance.Models.Invoice
+            {
+                OrderId = order.Id,
+                TotalAmount = order.TotalAmount,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Invoices.Add(invoice);
+
+            // Vider le panier
+            _context.CartItems.RemoveRange(Cart.Items);
+            _context.Carts.Remove(Cart);
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage("/Orders/Details", new { id = order.Id });
         }
 
-        // Créer la commande après confirmation Stripe
-        [HttpPost]
-        public async Task<IActionResult> OnPostConfirmAsync(string paymentIntentId)
-        {
-            try
-            {
-                // Récupérer le PaymentIntent depuis Stripe
-                var paymentIntentService = new PaymentIntentService();
-                var intent = await paymentIntentService.GetAsync(paymentIntentId);
-
-                if (intent.Status != "succeeded")
-                    return new BadRequestObjectResult(new { error = "Le paiement n'a pas été confirmé" });
-
-                //  Récupérer le client ici aussi
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var client = await _context.Users.FirstAsync(u => u.Id == userId);
-
-                //  Récupérer le Cart à nouveau
-                Cart = await _cartService.GetCartAsync();
-                if (!Cart.Items.Any())
-                    return new BadRequestObjectResult(new { error = "Le panier est vide" });
-
-                var firstPlat = await _context.Plats
-                    .Include(p => p.Restaurant)
-                    .FirstAsync(p => p.Id == Cart.Items.First().PlatId);
-
-                var order = new Order
-                {
-                    ClientId = client.Id,
-                    RestaurantId = firstPlat.RestaurantId,
-                    CreatedAt = DateTime.UtcNow,
-                    TotalAmount = Total,
-                    Status = "Paid",
-                    StripePaymentIntentId = intent.Id
-                };
-
-                foreach (var item in Cart.Items)
-                {
-                    order.Items.Add(new OrderItem
-                    {
-                        PlatId = item.PlatId,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice
-                    });
-                }
-
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
-
-                // Créer la facture
-                var invoice = new BoutiqueElegance.Models.Invoice
-                {
-                    OrderId = order.Id,
-                    TotalAmount = order.TotalAmount,
-                    CreatedAt = DateTime.UtcNow
-                };
-                _context.Invoices.Add(invoice);
-
-                // Vider le panier
-                _context.CartItems.RemoveRange(Cart.Items);
-                _context.Carts.Remove(Cart);
-
-                await _context.SaveChangesAsync();
-
-                // Retourner l'ID de la commande en JSON (pour le JS)
-                return new JsonResult(new { orderId = order.Id, success = true });
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult(new { error = ex.Message });
-            }
-        }
     }
 }
 
