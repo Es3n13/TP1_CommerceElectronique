@@ -11,7 +11,7 @@
     @if (Model.Cart.Items == null || !Model.Cart.Items.Any())
     {
         <div class="empty-cart">
-            <div class="empty-cart-icon">🛒</div>
+            <div class="empty-cart-icon"></div>
             <h3>Votre panier est vide</h3>
             <p>Découvrez les délicieux plats et ajoutez-les à votre panier</p>
             <a href="@Url.Page("/Index")" class="btn btn-primary">Continuer vos achats</a>
@@ -45,9 +45,12 @@
                                     <span class="subtotal-amount">@(item.UnitPrice* item.Quantity) $</span>
                                 </div>
 
-                                <button class="btn-remove" data-item-id="@item.Id" title="Supprimer">
-                                    🗑️ Supprimer
-                                </button>
+                                <form method="post" style="display: inline;">
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <button type="submit" asp-page-handler="Delete" class="btn-remove" title="Supprimer">
+                                        Supprimer
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     }
