@@ -17,17 +17,17 @@ namespace BoutiqueElegance.Pages.Cart
 
         public async Task OnGetAsync()
         {
-            // Toujours charger le panier frais depuis la base de donnÈes/session
+            // Toujours charger le panier frais depuis la base de donn√©es/session
             Cart = await _cartService.GetCartAsync();
         }
 
         /// <summary>
-        /// Handler spÈcial pour rafraÓchir le panier aprËs ajout d'articles
+        /// Handler sp√©cial pour rafra√Æchir le panier apr√®s ajout d'articles
         /// </summary>
         public async Task OnGetRefreshCartAsync()
         {
-            // Charger le panier - c'est la mÍme chose que OnGetAsync
-            // Mais cette mÈthode garantit un rechargement complet
+            // Charger le panier - c'est la m√™me chose que OnGetAsync
+            // Mais cette m√©thode garantit un rechargement complet
             Cart = await _cartService.GetCartAsync();
         }
 
@@ -37,6 +37,28 @@ namespace BoutiqueElegance.Pages.Cart
                 return 0;
 
             return Cart.Items.Sum(i => i.UnitPrice * i.Quantity);
+        }
+
+                public async Task<IActionResult> OnPostDeleteAsync(int itemId)
+        {
+            // Charger le panier actuel
+            Cart = await _cartService.GetCartAsync();
+            
+            // Trouver et supprimer l'article
+            if (Cart.Items != null)
+            {
+                var itemToRemove = Cart.Items.FirstOrDefault(i => i.Id == itemId);
+                if (itemToRemove != null)
+                {
+                    Cart.Items.Remove(itemToRemove);
+                    
+                    // Mettre √† jour la session du panier
+                    await _cartService.SaveCartAsync(Cart);
+                }
+            }
+            
+            // Retourner JSON indiquant succ√®s
+            return new JsonResult(new { success = true });
         }
     }
 }
