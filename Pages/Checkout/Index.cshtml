@@ -5,6 +5,16 @@
     ViewData["Title"] = "Paiement";
 }
 
+<script>
+    const stripePublicKey = '@Model.StripePublicKey';
+</script>
+
+<!-- Charger Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+
+<!-- Mon script -->
+<script src="~/js/stripe-payment.js"></script>
+
 <div class="container">
     <!-- Titre de la page -->
     <div class="checkout-header">
@@ -16,7 +26,7 @@
         <!-- Résumé de la commande -->
         <div class="checkout-summary-section">
             <div class="summary-card">
-                <h2 class="section-title">📋 Résumé de votre commande</h2>
+                <h2 class="section-title">Résumé de votre commande</h2>
 
                 <!-- Items de la commande -->
                 <div class="order-items-summary">
@@ -47,97 +57,74 @@
             </div>
         </div>
 
-        <!-- Formulaire ee paiement -->
-        <div class="checkout-payment-section">
-            <div class="payment-card">
-                <h2 class="section-title">💳 Informations de paiement</h2>
+            <!-- Formulaire de paiement modernisé -->
+            <div class="checkout-payment-section">
+                <div class="payment-card">
+                    <h2 class="section-title">💳 Informations de paiement</h2>
+                    <form id="payment-form" class="payment-form">
 
-                <form method="post" class="payment-form">
-                    <!-- Nom sur la carte -->
-                    <div class="form-group">
-                        <label for="cardHolder" class="form-label">Nom sur la carte</label>
-                        <input type="text"
-                               id="cardHolder"
-                               asp-for="CardHolderName"
-                               class="form-input"
-                               placeholder="Jean Dupont"
-                               required />
-                    </div>
-
-                    <!-- Email -->
-                    <div class="form-group">
-                        <label for="email" class="form-label">Adresse courriel</label>
-                        <input type="email"
-                               id="email"
-                               asp-for="Email"
-                               class="form-input"
-                               placeholder="jean@exemple.com"
-                               required />
-                    </div>
-
-                    <!-- Numéro de la carte -->
-                    <div class="form-group">
-                        <label for="cardNumber" class="form-label">Numéro de carte</label>
-                        <input type="text"
-                               id="cardNumber"
-                               class="form-input"
-                               placeholder="4242 4242 4242 4242"
-                               maxlength="19"
-                               oninput="formatCardNumber(this)"
-                               required />
-                    </div>
-
-                    <!-- Expiration & CVC -->
-                    <div class="form-row">
+                        <!-- Nom sur la carte -->
                         <div class="form-group">
-                            <label for="expiry" class="form-label">Expiration</label>
+                            <label for="cardHolder" class="form-label">Nom sur la carte</label>
                             <input type="text"
-                                   id="expiry"
+                                   id="cardHolder"
+                                   asp-for="CardHolderName"
                                    class="form-input"
-                                   placeholder="MM/AA"
-                                   maxlength="5"
-                                   oninput="formatExpiry(this)"
+                                   placeholder="Jean Dupont"
                                    required />
                         </div>
+
+                        <!-- Email -->
                         <div class="form-group">
-                            <label for="cvc" class="form-label">CVC</label>
-                            <input type="text"
-                                   id="cvc"
+                            <label for="email" class="form-label">Adresse courriel</label>
+                            <input type="email"
+                                   id="email"
+                                   asp-for="Email"
                                    class="form-input"
-                                   placeholder="123"
-                                   maxlength="4"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                   placeholder="jean@exemple.com"
                                    required />
                         </div>
+
+                        <!-- Stripe Elements (remplace les champs carte/expiration/CVC) -->
+                        <div class="form-group">
+                            <label class="form-label">Numéro de carte</label>
+                            <div id="card-element" class="form-input"></div>
+                            <div id="card-errors" role="alert" style="color: #fa755a; margin-top: 8px;"></div>
+                        </div>
+
+                        <!-- Code postal (optionnel, Stripe peut le demander) -->
+                        <div class="form-group">
+                            <label for="postalCode" class="form-label">Code postal</label>
+                            <input type="text"
+                                   id="postalCode"
+                                   class="form-input"
+                                   placeholder="G0L 1B0"
+                                   required />
+                        </div>
+
+                        <!-- Bouton payer -->
+                        <button type="submit" class="btn-pay" id="submit-btn">
+                            Payer @Model.Total.ToString("0.00") $
+                            <span class="btn-arrow">→</span>
+                        </button>
+                    </form>
+
+                    <!-- Info Sécurité -->
+                    <div class="security-info">
+                        <span class="security-icon">🔒</span>
+                        <p>Vos données sont sécurisées par <strong>Stripe</strong></p>
                     </div>
-
-                    <!-- Code postal -->
-                    <div class="form-group">
-                        <label for="postalCode" class="form-label">Code postal</label>
-                        <input type="text"
-                               id="postalCode"
-                               class="form-input"
-                               placeholder="G0L 1B0"
-                               required />
-                    </div>
-
-                    <!-- Bouton payer -->
-                    <button type="submit" class="btn-pay">
-                        Payer @Model.Total.ToString("0.00") $
-                        <span class="btn-arrow">→</span>
-                    </button>
-                </form>
-
-                <!-- Info Sécurité -->
-                <div class="security-info">
-                    <span class="security-icon">🔒</span>
-                    <p>Vos données sont sécurisées par <strong>Stripe</strong></p>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
+            <!-- Passer le ClientSecret au script JS -->
+            <script>
+                const clientSecret = '@Model.ClientSecret';
+                const total = @Model.Total.ToString("0.00");
+            </script>
+
+
+<!-- Format d'affichage pour le paiement -->
 <script>
     function formatCardNumber(input) {
         let value = input.value.replace(/\s/g, '');
@@ -153,4 +140,5 @@
         input.value = value;
     }
 </script>
+
 

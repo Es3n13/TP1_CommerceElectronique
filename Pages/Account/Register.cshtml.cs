@@ -29,7 +29,7 @@ namespace BoutiqueElegance.Pages.Account
         [BindProperty]
         public string Role { get; set; } = string.Empty;
 
-        // Pour afficher la liste des restaurants si Role == Vendeur
+        // Pour afficher la liste des restaurants si Role = Vendeur
         public IList<Restaurant> Restaurants { get; set; } = new List<Restaurant>();
 
         [BindProperty]

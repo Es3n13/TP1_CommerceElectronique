@@ -11,7 +11,7 @@
     @if (!Model.Orders.Any())
     {
         <div class="empty-state">
-            <div class="empty-state-icon">📦</div>
+            <div class="empty-state-icon"></div>
             <h3>Aucune commande</h3>
             <p>Vous n'avez pas encore de commande. Commencez à commander dès maintenant!</p>
             <a href="@Url.Page("/Index")" class="btn btn-primary">Découvrir nos plats</a>
@@ -28,7 +28,7 @@
                         <div class="order-info">
                             <h3 class="order-number">Commande #@order.Id</h3>
                             <p class="order-date">
-                                📅 @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
+                                @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
                             </p>
                         </div>
                         <div class="order-status">

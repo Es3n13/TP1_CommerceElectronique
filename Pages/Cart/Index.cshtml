@@ -11,7 +11,7 @@
     @if (Model.Cart.Items == null || !Model.Cart.Items.Any())
     {
         <div class="empty-cart">
-            <div class="empty-cart-icon">🛒</div>
+            <div class="empty-cart-icon"></div>
             <h3>Votre panier est vide</h3>
             <p>Découvrez les délicieux plats et ajoutez-les à votre panier</p>
             <a href="@Url.Page("/Index")" class="btn btn-primary">Continuer vos achats</a>
@@ -46,7 +46,7 @@
                                 </div>
 
                                 <button class="btn-remove" data-item-id="@item.Id" title="Supprimer">
-                                    🗑️ Supprimer
+                                    Supprimer
                                 </button>
                             </div>
                         </div>

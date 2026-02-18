@@ -36,7 +36,7 @@ namespace BoutiqueElegance.Pages.Orders
             return Page();
         }
 
-        /// Retourne la classe CSS du badge de statut
+        // Retourne la classe CSS du badge de statut
         public string GetStatusClass(string status)
         {
             return status?.ToLower() switch
@@ -48,7 +48,7 @@ namespace BoutiqueElegance.Pages.Orders
             };
         }
 
-        /// Retourne le label du statut avec emoji
+        ///Retourne le label du statut
         public string GetStatusLabel(string status)
         {
             return status?.ToLower() switch
