@@ -45,9 +45,12 @@
                                     <span class="subtotal-amount">@(item.UnitPrice* item.Quantity) $</span>
                                 </div>
 
-                                <button class="btn-remove" data-item-id="@item.Id" title="Supprimer">
-                                    Supprimer
-                                </button>
+                                <form method="post" style="display: inline;">
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <button type="submit" asp-page-handler="Delete" class="btn-remove" title="Supprimer">
+                                        Supprimer
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     }

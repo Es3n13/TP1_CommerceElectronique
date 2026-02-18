@@ -75,5 +75,15 @@ namespace BoutiqueElegance.Services
         {
             return await GetOrCreateCartAsync();
         }
+
+        public async Task RemoveFromCartAsync(int cartItemId)
+        {
+            var item = await _context.CartItems.FindAsync(cartItemId);
+            if (item != null)
+            {
+                _context.CartItems.Remove(item);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

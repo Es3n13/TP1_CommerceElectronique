@@ -1,5 +1,6 @@
 using BoutiqueElegance.Models;
 using BoutiqueElegance.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BoutiqueElegance.Pages.Cart
@@ -17,17 +18,11 @@ namespace BoutiqueElegance.Pages.Cart
 
         public async Task OnGetAsync()
         {
-            // Toujours charger le panier frais depuis la base de données/session
             Cart = await _cartService.GetCartAsync();
         }
 
-        /// <summary>
-        /// Handler spécial pour rafraîchir le panier après ajout d'articles
-        /// </summary>
         public async Task OnGetRefreshCartAsync()
         {
-            // Charger le panier - c'est la même chose que OnGetAsync
-            // Mais cette méthode garantit un rechargement complet
             Cart = await _cartService.GetCartAsync();
         }
 
@@ -38,6 +33,13 @@ namespace BoutiqueElegance.Pages.Cart
 
             return Cart.Items.Sum(i => i.UnitPrice * i.Quantity);
         }
+
+        public async Task<IActionResult> OnPostDeleteAsync(int itemId)
+        {
+            await _cartService.RemoveFromCartAsync(itemId);
+            return RedirectToPage();
+        }
+
     }
 }
 
