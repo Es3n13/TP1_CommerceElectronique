@@ -14,14 +14,14 @@ namespace BoutiqueElegance.Pages.Cart
         }
 
    
-        // Classe pour recevoir les articles du panier local
+        /// Classe pour recevoir les articles du panier local
         public class CartItem
         {
             public int PlatId { get; set; }
             public int Quantity { get; set; }
         }
 
-        // Ajoute plusieurs articles au panier en une seule requête
+        /// Ajoute plusieurs articles au panier en une seule requête
         public async Task<IActionResult> OnPostAsync(List<CartItem> items, int restaurantId)
         {
             // Validation des paramètres

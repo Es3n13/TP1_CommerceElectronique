@@ -15,13 +15,11 @@ namespace BoutiqueElegance.Pages.Checkout
     {
         private readonly CartService _cartService;
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration;
 
-        public IndexModel(CartService cartService, ApplicationDbContext context, IConfiguration configuration)
+        public IndexModel(CartService cartService, ApplicationDbContext context)
         {
             _cartService = cartService;
             _context = context;
-            _configuration = configuration;
         }
 
         public BoutiqueElegance.Models.Cart Cart { get; set; } = new BoutiqueElegance.Models.Cart();
@@ -34,11 +32,6 @@ namespace BoutiqueElegance.Pages.Checkout
         [BindProperty]
         public string Email { get; set; } = string.Empty;
 
-        [BindProperty]
-        public string ClientSecret { get; set; } = string.Empty;
-
-        public string StripePublicKey { get; set; } = string.Empty;
-
         public async Task<IActionResult> OnGetAsync()
         {
             Cart = await _cartService.GetCartAsync();
@@ -46,7 +39,6 @@ namespace BoutiqueElegance.Pages.Checkout
                 return RedirectToPage("/Cart/Index");
 
             Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
-            StripePublicKey = _configuration["Stripe:PublicKey"] ?? string.Empty;
             return Page();
         }
 
@@ -59,8 +51,9 @@ namespace BoutiqueElegance.Pages.Checkout
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var client = await _context.Users.FirstAsync(u => u.Id == userId);
 
-            // Créer un PaymentIntent Stripe
+            // Créer un PaymentIntent Stripe (sandbox)
             var amountInCents = (long)(Total * 100);
+
             var paymentIntentService = new PaymentIntentService();
             var createOptions = new PaymentIntentCreateOptions
             {
@@ -112,11 +105,10 @@ namespace BoutiqueElegance.Pages.Checkout
             // Vider le panier
             _context.CartItems.RemoveRange(Cart.Items);
             _context.Carts.Remove(Cart);
+
             await _context.SaveChangesAsync();
 
             return RedirectToPage("/Orders/Details", new { id = order.Id });
         }
-
     }
 }
-

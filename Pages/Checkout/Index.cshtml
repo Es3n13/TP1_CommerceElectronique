@@ -1,5 +1,6 @@
 ﻿@page
 @model BoutiqueElegance.Pages.Checkout.IndexModel
+
 @{
     ViewData["Title"] = "Paiement";
 }
@@ -15,7 +16,8 @@
         <!-- Résumé de la commande -->
         <div class="checkout-summary-section">
             <div class="summary-card">
-                <h2 class="section-title">Résumé de votre commande</h2>
+                <h2 class="section-title">📋 Résumé de votre commande</h2>
+
                 <!-- Items de la commande -->
                 <div class="order-items-summary">
                     @foreach (var item in Model.Cart.Items)
@@ -30,23 +32,26 @@
                             </div>
                         </div>
                     }
-                    <!-- Divider -->
-                    <div class="summary-divider"></div>
-                    <!-- Total final -->
-                    <div class="final-total">
-                        <span class="total-label">Total à payer:</span>
-                        <span class="total-amount">@Model.Total.ToString("0.00") $</span>
-                    </div>
-                    <!-- Retour au panier -->
-                    <a href="@Url.Page("/Cart/Index")" class="link-back">← Retour au panier</a>
+
+                <!-- Divider -->
+                <div class="summary-divider"></div>
+
+                <!-- Total final -->
+                <div class="final-total">
+                    <span class="total-label">Total à payer:</span>
+                    <span class="total-amount">@Model.Total.ToString("0.00") $</span>
                 </div>
+
+                <!-- Retour au panier -->
+                <a href="@Url.Page("/Cart/Index")" class="link-back">← Retour au panier</a>
             </div>
         </div>
 
-        <!-- Formulaire de paiement -->
+        <!-- Formulaire ee paiement -->
         <div class="checkout-payment-section">
             <div class="payment-card">
-                <h2 class="section-title">Informations de paiement</h2>
+                <h2 class="section-title">💳 Informations de paiement</h2>
+
                 <form method="post" class="payment-form">
                     <!-- Nom sur la carte -->
                     <div class="form-group">
@@ -55,6 +60,7 @@
                                id="cardHolder"
                                asp-for="CardHolderName"
                                class="form-input"
+                               placeholder="Jean Dupont"
                                required />
                     </div>
 
@@ -65,6 +71,7 @@
                                id="email"
                                asp-for="Email"
                                class="form-input"
+                               placeholder="jean@exemple.com"
                                required />
                     </div>
 
@@ -80,7 +87,7 @@
                                required />
                     </div>
 
-                    <!-- Expiration et CVC -->
+                    <!-- Expiration & CVC -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="expiry" class="form-label">Expiration</label>
@@ -123,7 +130,7 @@
 
                 <!-- Info Sécurité -->
                 <div class="security-info">
-                    <span class="security-icon"></span>
+                    <span class="security-icon">🔒</span>
                     <p>Vos données sont sécurisées par <strong>Stripe</strong></p>
                 </div>
             </div>
@@ -131,7 +138,6 @@
     </div>
 </div>
 
-<!-- Format d'affichage pour le paiement -->
 <script>
     function formatCardNumber(input) {
         let value = input.value.replace(/\s/g, '');
@@ -147,5 +153,4 @@
         input.value = value;
     }
 </script>
-
 
