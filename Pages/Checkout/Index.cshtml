@@ -68,16 +68,10 @@
                                required />
                     </div>
 
-                    <!-- Numéro de la carte -->
+                    <!-- Stripe Elements: carte -->
                     <div class="form-group">
-                        <label for="cardNumber" class="form-label">Numéro de carte</label>
-                        <input type="text"
-                               id="cardNumber"
-                               class="form-input"
-                               placeholder="4242 4242 4242 4242"
-                               maxlength="19"
-                               oninput="formatCardNumber(this)"
-                               required />
+                        <label class="form-label">Carte de crédit</label>
+                        <div id="card-element" class="form-input stripe-card-element"></div>
                     </div>
 
                     <!-- Expiration et CVC -->
@@ -104,18 +98,8 @@
                         </div>
                     </div>
 
-                    <!-- Code postal -->
-                    <div class="form-group">
-                        <label for="postalCode" class="form-label">Code postal</label>
-                        <input type="text"
-                               id="postalCode"
-                               class="form-input"
-                               placeholder="G0L 1B0"
-                               required />
-                    </div>
-
                     <!-- Bouton payer -->
-                    <button type="submit" class="btn-pay">
+                    <button type="submit" id="card-button" class="btn-pay">
                         Payer @Model.Total.ToString("0.00") $
                         <span class="btn-arrow">→</span>
                     </button>

@@ -25,8 +25,10 @@ namespace BoutiqueElegance.Pages.Checkout
         }
 
         public BoutiqueElegance.Models.Cart Cart { get; set; } = new BoutiqueElegance.Models.Cart();
-
         public decimal Total => Cart.Items.Sum(i => i.UnitPrice * i.Quantity);
+
+        public string PublishableKey => _config["Stripe:PublishableKey"]!;
+        public string ClientSecret { get; set; } = string.Empty;
 
         [BindProperty]
         public string CardHolderName { get; set; } = string.Empty;
@@ -50,7 +52,9 @@ namespace BoutiqueElegance.Pages.Checkout
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        // OnPostAsync nouvelle version : on ne crée plus le PaymentIntent ici,
+        // on suppose qu'il est confirmé côté client et on reçoit l'id du PaymentIntent.
+        public async Task<IActionResult> OnPostAsync(string paymentIntentId)
         {
             Cart = await _cartService.GetCartAsync();
             if (!Cart.Items.Any())
@@ -64,15 +68,11 @@ namespace BoutiqueElegance.Pages.Checkout
             var paymentIntentService = new PaymentIntentService();
             var createOptions = new PaymentIntentCreateOptions
             {
-                Amount = amountInCents,
-                Currency = "cad",
-                PaymentMethodTypes = new List<string> { "card" },
-                ReceiptEmail = Email
-            };
+                ModelState.AddModelError(string.Empty, "Le paiement n'a pas été confirmé.");
+                return await OnGetAsync(); // réafficher la page
+            }
 
-            var intent = await paymentIntentService.CreateAsync(createOptions);
-
-            // Créer la commande
+            // Créer la commande (comme avant, avec RestaurantId)
             var firstPlat = await _context.Plats
                 .Include(p => p.Restaurant)
                 .FirstAsync(p => p.Id == Cart.Items.First().PlatId);
@@ -100,7 +100,6 @@ namespace BoutiqueElegance.Pages.Checkout
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // Créer la facture
             var invoice = new BoutiqueElegance.Models.Invoice
             {
                 OrderId = order.Id,
@@ -109,7 +108,6 @@ namespace BoutiqueElegance.Pages.Checkout
             };
             _context.Invoices.Add(invoice);
 
-            // Vider le panier
             _context.CartItems.RemoveRange(Cart.Items);
             _context.Carts.Remove(Cart);
             await _context.SaveChangesAsync();
@@ -118,5 +116,6 @@ namespace BoutiqueElegance.Pages.Checkout
         }
 
     }
+
 }
 

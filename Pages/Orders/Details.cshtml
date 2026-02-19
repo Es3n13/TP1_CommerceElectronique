@@ -26,7 +26,7 @@
         </div>
 
         <div class="order-details-wrapper">
-            <div class="order-details-main">
+            <div class="summary-card">
                 <!-- Info commande -->
                 <div class="info-card">
                     <h3 class="card-title">Informations de la commande</h3>
@@ -80,18 +80,12 @@
                         }
                     </div>
                 </div>
-            </div>
 
-            <!-- Sidebar sommaire -->
-            <div class="order-details-sidebar">
-                <div class="summary-card">
+                <div class="summary-divider"></div>
 
-                    <div class="summary-divider"></div>
-
-                    <div class="summary-total">
-                        <span class="total-label">Total:</span>
-                        <span class="total-amount">@Model.Order.TotalAmount $</span>
-                    </div>
+                <div class="summary-total">
+                    <span class="total-label">Total:</span>
+                    <span class="total-amount">@Model.Order.TotalAmount $</span>
                 </div>
             </div>
         </div>

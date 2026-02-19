@@ -59,17 +59,10 @@
 
             <!-- Résumé de la commande -->
             <div class="cart-summary">
-                <h3>Résumé de commande</h3>
-
-                <div class="summary-line">
-                    <span class="summary-label">Sous-total:</span>
-                    <span class="summary-value">@Model.GetTotal() $</span>
-                </div>
-
-                <div class="summary-divider"></div>
+                <h3>Total</h3>
 
                 <div class="summary-total">
-                    <span class="total-label">Total:</span>
+                    <span class="total-label">Montant:</span>
                     <span class="total-amount">@Model.GetTotal().ToString("0.00") $</span>
                 </div>
 

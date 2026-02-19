@@ -23,6 +23,7 @@ namespace BoutiqueElegance.Pages.Cart
 
         public async Task OnGetRefreshCartAsync()
         {
+            // Toujours charger le panier frais depuis la base de données/session
             Cart = await _cartService.GetCartAsync();
         }
 
@@ -39,7 +40,6 @@ namespace BoutiqueElegance.Pages.Cart
             await _cartService.RemoveFromCartAsync(itemId);
             return RedirectToPage();
         }
-
     }
 }
 
