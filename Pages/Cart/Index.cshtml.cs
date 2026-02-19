@@ -23,7 +23,6 @@ namespace BoutiqueElegance.Pages.Cart
 
         public async Task OnGetRefreshCartAsync()
         {
-            // Toujours charger le panier frais depuis la base de données/session
             Cart = await _cartService.GetCartAsync();
         }
 
