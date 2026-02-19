@@ -15,19 +15,19 @@ namespace BoutiqueElegance.Pages.Checkout
     {
         private readonly CartService _cartService;
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration _config;
 
-        public IndexModel(CartService cartService, ApplicationDbContext context, IConfiguration configuration)
+        public IndexModel(CartService cartService, ApplicationDbContext context, IConfiguration config)
         {
             _cartService = cartService;
             _context = context;
-            _configuration = configuration;
+            _config = config;
         }
 
         public BoutiqueElegance.Models.Cart Cart { get; set; } = new BoutiqueElegance.Models.Cart();
         public decimal Total => Cart.Items.Sum(i => i.UnitPrice * i.Quantity);
 
-        public string PublishableKey => _config["Stripe:PublishableKey"]!;
+        public string PublishableKey => _config["Stripe:PublicKey"]!;
         public string ClientSecret { get; set; } = string.Empty;
 
         [BindProperty]
@@ -36,11 +36,6 @@ namespace BoutiqueElegance.Pages.Checkout
         [BindProperty]
         public string Email { get; set; } = string.Empty;
 
-        [BindProperty]
-        public string ClientSecret { get; set; } = string.Empty;
-
-        public string StripePublicKey { get; set; } = string.Empty;
-
         public async Task<IActionResult> OnGetAsync()
         {
             Cart = await _cartService.GetCartAsync();
@@ -48,7 +43,25 @@ namespace BoutiqueElegance.Pages.Checkout
                 return RedirectToPage("/Cart/Index");
 
             Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
-            StripePublicKey = _configuration["Stripe:PublicKey"] ?? string.Empty;
+
+            // Créer le PaymentIntent
+            var amountInCents = (long)(Total * 100);
+
+            var service = new PaymentIntentService();
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = amountInCents,
+                Currency = "cad",
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true
+                },
+                ReceiptEmail = Email
+            };
+
+            var intent = await service.CreateAsync(options);
+            ClientSecret = intent.ClientSecret;
+
             return Page();
         }
 
@@ -63,10 +76,11 @@ namespace BoutiqueElegance.Pages.Checkout
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var client = await _context.Users.FirstAsync(u => u.Id == userId);
 
-            // Créer un PaymentIntent Stripe
-            var amountInCents = (long)(Total * 100);
-            var paymentIntentService = new PaymentIntentService();
-            var createOptions = new PaymentIntentCreateOptions
+            // Vérifier le PaymentIntent côté Stripe
+            var service = new PaymentIntentService();
+            var intent = await service.GetAsync(paymentIntentId);
+
+            if (intent.Status != "succeeded")
             {
                 ModelState.AddModelError(string.Empty, "Le paiement n'a pas été confirmé.");
                 return await OnGetAsync(); // réafficher la page
@@ -114,8 +128,6 @@ namespace BoutiqueElegance.Pages.Checkout
 
             return RedirectToPage("/Orders/Details", new { id = order.Id });
         }
-
     }
-
 }
 

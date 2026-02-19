@@ -1,5 +1,6 @@
 ﻿@page
 @model BoutiqueElegance.Pages.Checkout.IndexModel
+
 @{
     ViewData["Title"] = "Paiement";
 }
@@ -15,7 +16,8 @@
         <!-- Résumé de la commande -->
         <div class="checkout-summary-section">
             <div class="summary-card">
-                <h2 class="section-title">Résumé de votre commande</h2>
+                <h2 class="section-title">📋 Résumé de votre commande</h2>
+
                 <!-- Items de la commande -->
                 <div class="order-items-summary">
                     @foreach (var item in Model.Cart.Items)
@@ -30,24 +32,31 @@
                             </div>
                         </div>
                     }
-                    <!-- Divider -->
-                    <div class="summary-divider"></div>
-                    <!-- Total final -->
-                    <div class="final-total">
-                        <span class="total-label">Total à payer:</span>
-                        <span class="total-amount">@Model.Total.ToString("0.00") $</span>
-                    </div>
-                    <!-- Retour au panier -->
-                    <a href="@Url.Page("/Cart/Index")" class="link-back">← Retour au panier</a>
                 </div>
+
+                <!-- Divider -->
+                <div class="summary-divider"></div>
+
+                <!-- Total final -->
+                <div class="final-total">
+                    <span class="total-label">Total à payer:</span>
+                    <span class="total-amount">@Model.Total.ToString("0.00") $</span>
+                </div>
+
+                <!-- Retour au panier -->
+                <a href="@Url.Page("/Cart/Index")" class="link-back">← Retour au panier</a>
             </div>
         </div>
 
         <!-- Formulaire de paiement -->
         <div class="checkout-payment-section">
             <div class="payment-card">
-                <h2 class="section-title">Informations de paiement</h2>
-                <form method="post" class="payment-form">
+                <h2 class="section-title">💳 Informations de paiement</h2>
+
+                <form id="payment-form" method="post" class="payment-form">
+                    <!-- champ caché pour renvoyer l'id du PaymentIntent confirmé -->
+                    <input type="hidden" id="paymentIntentId" name="paymentIntentId" />
+
                     <!-- Nom sur la carte -->
                     <div class="form-group">
                         <label for="cardHolder" class="form-label">Nom sur la carte</label>
@@ -55,6 +64,7 @@
                                id="cardHolder"
                                asp-for="CardHolderName"
                                class="form-input"
+                               placeholder="Jean Dupont"
                                required />
                     </div>
 
@@ -65,6 +75,7 @@
                                id="email"
                                asp-for="Email"
                                class="form-input"
+                               placeholder="jean@exemple.com"
                                required />
                     </div>
 
@@ -74,29 +85,7 @@
                         <div id="card-element" class="form-input stripe-card-element"></div>
                     </div>
 
-                    <!-- Expiration et CVC -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="expiry" class="form-label">Expiration</label>
-                            <input type="text"
-                                   id="expiry"
-                                   class="form-input"
-                                   placeholder="MM/AA"
-                                   maxlength="5"
-                                   oninput="formatExpiry(this)"
-                                   required />
-                        </div>
-                        <div class="form-group">
-                            <label for="cvc" class="form-label">CVC</label>
-                            <input type="text"
-                                   id="cvc"
-                                   class="form-input"
-                                   placeholder="123"
-                                   maxlength="4"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');"
-                                   required />
-                        </div>
-                    </div>
+                    <div id="card-errors" class="card-errors" role="alert"></div>
 
                     <!-- Bouton payer -->
                     <button type="submit" id="card-button" class="btn-pay">
@@ -107,7 +96,7 @@
 
                 <!-- Info Sécurité -->
                 <div class="security-info">
-                    <span class="security-icon"></span>
+                    <span class="security-icon">🔒</span>
                     <p>Vos données sont sécurisées par <strong>Stripe</strong></p>
                 </div>
             </div>
@@ -115,21 +104,55 @@
     </div>
 </div>
 
-<!-- Format d'affichage pour le paiement -->
-<script>
-    function formatCardNumber(input) {
-        let value = input.value.replace(/\s/g, '');
-        let formattedValue = value.replace(/(\d{4})/g, '$1 ').trim();
-        input.value = formattedValue;
-    }
+@section Scripts {
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe("@Model.PublishableKey");
+        const elements = stripe.elements();
 
-    function formatExpiry(input) {
-        let value = input.value.replace(/\D/g, '');
-        if (value.length >= 2) {
-            value = value.substring(0, 2) + '/' + value.substring(2, 4);
-        }
-        input.value = value;
-    }
-</script>
+        const cardElement = elements.create('card', {
+            hidePostalCode: false
+        });
+        cardElement.mount('#card-element');
+
+        const paymentForm = document.getElementById('payment-form');
+        const cardButton = document.getElementById('card-button');
+        const cardholderNameInput = document.getElementById('cardHolder');
+        const cardErrors = document.getElementById('card-errors');
+        const clientSecret = "@Model.ClientSecret";
+        const paymentIntentIdInput = document.getElementById('paymentIntentId');
+
+        paymentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            cardButton.disabled = true;
+            cardErrors.textContent = "";
+
+            const { paymentIntent, error } = await stripe.confirmCardPayment(
+                clientSecret,
+                {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: cardholderNameInput.value
+                        }
+                    }
+                }
+            );
+
+            if (error) {
+                cardErrors.textContent = error.message;
+                cardButton.disabled = false;
+            } else if (paymentIntent && paymentIntent.status === "succeeded") {
+                // envoyer l'id du PaymentIntent au backend
+                paymentIntentIdInput.value = paymentIntent.id;
+                paymentForm.submit();
+            } else {
+                cardErrors.textContent = "Le paiement n'a pas pu être confirmé.";
+                cardButton.disabled = false;
+            }
+        });
+    </script>
+}
+
 
 
