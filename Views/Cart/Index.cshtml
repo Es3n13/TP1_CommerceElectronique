@@ -55,14 +55,9 @@
                                 </div>
 
                                 <!-- Bouton supprimer -->
-                                <form method="post" asp-action="RemoveItem" style="display: inline;">
+                                <form method="post" asp-controller="Cart" asp-action="RemoveItem" style="display:inline;">
                                     <input type="hidden" name="itemId" value="@item.Id" />
-                                    <button type="submit"
-                                            class="btn-remove"
-                                            title="Supprimer"
-                                            onclick="return confirm('Êtes-vous sûr ?');">
-                                        Supprimer
-                                    </button>
+                                    <button type="submit" class="btn-remove" title="Supprimer">Supprimer</button>
                                 </form>
                             </div>
                         </div>
@@ -72,14 +67,10 @@
 
             <!-- Résumé -->
             <div class="cart-summary">
-                <h3>Résumé de commande</h3>
-                <div class="summary-line">
-                    <span class="summary-label">Sous-total:</span>
-                    <span class="summary-value">@total $</span>
-                </div>
+                <h3>Total</h3>
                 <div class="summary-divider"></div>
                 <div class="summary-total">
-                    <span class="total-label">Total:</span>
+                    <span class="total-label">Montant:</span>
                     <span class="total-amount">@total.ToString("0.00") $</span>
                 </div>
 

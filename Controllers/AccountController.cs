@@ -79,65 +79,94 @@ namespace BoutiqueElegance.Controllers
             }
         }
 
-        // GET: /Account/Register
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
+            var restaurants = await _context.Restaurants
+                .OrderBy(r => r.Name)
+                .ToListAsync();
+
+            ViewBag.Restaurants = restaurants;
+            ViewBag.Roles = new List<string> { "Client", "Vendeur" };
+
             return View();
         }
 
         // POST: /Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string email, string password, string confirmPassword, string fullName)
+        public async Task<IActionResult> Register(
+            string email,
+            string password,
+            string confirmPassword,
+            string fullName,
+            string role,
+            int? restaurantId)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(fullName))
+            if (string.IsNullOrEmpty(email) ||
+                string.IsNullOrEmpty(password) ||
+                string.IsNullOrEmpty(fullName) ||
+                string.IsNullOrEmpty(role))
             {
                 ModelState.AddModelError(string.Empty, "Tous les champs sont requis");
+            }
+
+            if (role == "Vendeur" && restaurantId == null)
+            {
+                ModelState.AddModelError(string.Empty, "Vous devez choisir un restaurant pour un compte vendeur");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // recharger les listes pour la vue
+                ViewBag.Restaurants = await _context.Restaurants.OrderBy(r => r.Name).ToListAsync();
+                ViewBag.Roles = new List<string> { "Client", "Vendeur" };
                 return View();
             }
 
             if (password != confirmPassword)
             {
                 ModelState.AddModelError(string.Empty, "Les mots de passe ne correspondent pas");
+
+                ViewBag.Restaurants = await _context.Restaurants.OrderBy(r => r.Name).ToListAsync();
+                ViewBag.Roles = new List<string> { "Client", "Vendeur" };
                 return View();
             }
 
-            try
+            // Vérifier email existant (comme tu fais déjà)
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (existingUser != null)
             {
-                // Vérifier si l'utilisateur existe déjà
-                var existingUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Email == email);
+                ModelState.AddModelError(string.Empty, "Un compte avec cet email existe déjà");
 
-                if (existingUser != null)
+                ViewBag.Restaurants = await _context.Restaurants.OrderBy(r => r.Name).ToListAsync();
+                ViewBag.Roles = new List<string> { "Client", "Vendeur" };
+                return View();
+            }
+
+            var newUser = new User
+            {
+                Email = email,
+                FullName = fullName,
+                PasswordHash = HashPassword(password),
+                Role = role
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            if (role == "Vendeur" && restaurantId.HasValue)
+            {
+                var resto = await _context.Restaurants.FindAsync(restaurantId.Value);
+                if (resto != null)
                 {
-                    ModelState.AddModelError(string.Empty, "Un compte avec cet email existe déjà");
-                    return View();
+                    resto.SellerId = newUser.Id;
+                    _context.Restaurants.Update(resto);
+                    await _context.SaveChangesAsync();
                 }
-
-                // Créer le nouvel utilisateur
-                var newUser = new User
-                {
-                    Email = email,
-                    FullName = fullName,
-                    PasswordHash = HashPassword(password),
-                    Role = "User",
-                };
-
-                _context.Users.Add(newUser);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"New user {email} registered successfully");
-
-                // Rediriger vers le login
-                return RedirectToAction("Login");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Registration error: {ex.Message}");
-                ModelState.AddModelError(string.Empty, "Une erreur est survenue lors de l'inscription");
-                return View();
-            }
+
+            return RedirectToAction("Login");
         }
 
         // GET: /Account/Profile

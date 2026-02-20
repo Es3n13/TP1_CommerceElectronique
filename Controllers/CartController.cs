@@ -24,18 +24,16 @@ namespace BoutiqueElegance.Controllers
 
         // POST: /Cart/AddToCart
         [HttpPost]
-        public async Task<IActionResult> AddToCart(int platId)
+        public async Task<IActionResult> AddToCart(int platId, int quantity)
         {
             try
             {
-                await _cartService.AddToCartAsync(platId);
+                await _cartService.AddToCartAsync(platId, quantity);
 
-                // Succès - rediriger vers le panier
                 return RedirectToAction("Index");
             }
             catch (RestaurantConflictException ex)
             {
-                // Conflit détecté
                 TempData["ConflictMessage"] = $"Vous avez des articles du restaurant {ex.CurrentRestaurantName}. " +
                     $"Vous essayez d'ajouter un article du restaurant {ex.NewRestaurantName}.";
                 TempData["CurrentRestaurant"] = ex.CurrentRestaurantName;
@@ -53,6 +51,7 @@ namespace BoutiqueElegance.Controllers
             }
         }
 
+
         // POST: /Cart/KeepCart
         [HttpPost]
         public async Task<IActionResult> KeepCart()
@@ -67,7 +66,7 @@ namespace BoutiqueElegance.Controllers
             try
             {
                 await _cartService.ClearCartAsync();
-                await _cartService.AddToCartAsync(platId);
+                await _cartService.AddToCartAsync(platId, 1);
 
                 return RedirectToAction("Index");
             }
@@ -82,18 +81,7 @@ namespace BoutiqueElegance.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveItem(int itemId)
         {
-            var cart = await _cartService.GetCartAsync();
-
-            if (cart?.Items != null)
-            {
-                var itemToRemove = cart.Items.FirstOrDefault(i => i.Id == itemId);
-                if (itemToRemove != null)
-                {
-                    cart.Items.Remove(itemToRemove);
-                    // Sauvegarder si nécessaire
-                }
-            }
-
+            await _cartService.RemoveFromCartAsync(itemId);
             return RedirectToAction("Index");
         }
 

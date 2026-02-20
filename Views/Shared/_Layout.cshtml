@@ -119,15 +119,26 @@
     </header>
 
     <main role="main">
-        <section class="hero">
-            <div class="container">
-                <h1>Le raffinement à portée de main</h1>
-                <p>Restaurants élégants • Qualité premium • Préparation rapide</p>
-                <a class="btn btn-primary hero-button" asp-controller="Home" asp-action="Index">
-                    Voir les restaurants
-                </a>
-            </div>
-        </section>
+        @* Retirer le Hero pour les pages Panier, Checkout et Commandes Resto*@
+        @{ 
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+            var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+            var hideHero = currentController == "Cart"
+            || currentController == "Checkout"
+            || currentController == "Sales";
+        }
+        @if (!hideHero)
+        {
+            <section class="hero">
+                <div class="container">
+                    <h1>Le raffinement à portée de main</h1>
+                    <p>Restaurants élégants • Qualité premium • Préparation rapide</p>
+                    <a class="btn btn-primary hero-button" asp-controller="Home" asp-action="Index">
+                        Voir les restaurants
+                    </a>
+                </div>
+            </section>
+        }
 
         <div class="container py-4">
             @RenderBody()

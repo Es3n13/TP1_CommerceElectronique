@@ -38,7 +38,7 @@
                 <!-- Total final -->
                 <div class="final-total">
                     <span class="total-label">Total à payer:</span>
-                    <span class="total-amount">@((decimal)ViewBag.Total).ToString("0.00") $</span>
+                    <span class="total-amount">@((decimal)ViewBag.Total)$</span>
                 </div>
 
                 <!-- Retour au panier -->
@@ -62,7 +62,6 @@
                                id="cardHolder"
                                name="cardHolderName"
                                class="form-input"
-                               placeholder="Jean Dupont"
                                required />
                     </div>
 
@@ -73,8 +72,6 @@
                                id="email"
                                name="email"
                                class="form-input"
-                               value="@ViewBag.Email"
-                               placeholder="jean@exemple.com"
                                required />
                     </div>
 
@@ -88,7 +85,7 @@
 
                     <!-- Bouton payer -->
                     <button type="submit" id="card-button" class="btn-pay">
-                        Payer @((decimal)ViewBag.Total).ToString("0.00") $
+                        Payer @((decimal)ViewBag.Total)$
                         <span class="btn-arrow">→</span>
                     </button>
                 </form>

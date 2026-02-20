@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BoutiqueElegance.Pages
+namespace BoutiqueElegance.Views
 {
     public class PrivacyModel : PageModel
     {

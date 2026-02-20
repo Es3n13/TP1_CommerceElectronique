@@ -44,32 +44,33 @@ namespace BoutiqueElegance.Services
             return cart;
         }
 
-        public async Task AddToCartAsync(int platId)
+        public async Task AddToCartAsync(int platId, int quantity)
         {
-            var plat = await _context.Plats.FindAsync(platId);
-            if (plat == null) return;
+            if (quantity < 1) quantity = 1;
 
             var cart = await GetOrCreateCartAsync();
+            var plat = await _context.Plats.FindAsync(platId);
+            if (plat == null) return;
 
             var existingItem = cart.Items.FirstOrDefault(i => i.PlatId == platId);
 
             if (existingItem == null)
             {
-                var item = new CartItem
+                cart.Items.Add(new CartItem
                 {
                     PlatId = platId,
-                    Quantity = 1,
+                    Quantity = quantity,
                     UnitPrice = plat.Price
-                };
-                cart.Items.Add(item);
+                });
             }
             else
             {
-                existingItem.Quantity += 1;
+                existingItem.Quantity += quantity;
             }
 
             await _context.SaveChangesAsync();
         }
+
 
         public async Task<Cart> GetCartAsync()
         {

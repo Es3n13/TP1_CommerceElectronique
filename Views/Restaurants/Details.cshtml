@@ -84,7 +84,10 @@ else
                                 <p class="item-price">@plat.Price.ToString("0.00") $</p>
 
                                 <!-- Sélecteur de quantité et bouton ajouter -->
-                                <form method="post" asp-controller="Cart" asp-action="Add" class="item-action-form">
+                                <form method="post"
+                                      asp-controller="Cart"
+                                      asp-action="AddToCart"
+                                      class="item-action-form">
                                     <input type="hidden" name="platId" value="@plat.Id" />
                                     <input type="hidden" name="restaurantId" value="@restaurant.Id" />
 

@@ -46,7 +46,32 @@
                             <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100">S'inscrire</button>
+                        <!-- Choix du rôle -->
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Type de compte</label>
+                            <select id="role" name="role" class="form-select" required>
+                                <option value="">-- Choisir un type de compte --</option>
+                                <option value="Client">Client</option>
+                                <option value="Vendeur">Vendeur</option>
+                            </select>
+                        </div>
+
+                        <!-- Choix du restaurant, visible seulement pour Vendeur -->
+                        <div class="mb-3" id="restaurant-group" style="display:none;">
+                            <label for="restaurantId" class="form-label">Restaurant</label>
+                            <select id="restaurantId" name="restaurantId" class="form-select">
+                                <option value="">-- Choisir un restaurant --</option>
+                                @if (ViewBag.Restaurants != null)
+                                {
+                                    foreach (var r in ViewBag.Restaurants)
+                                    {
+                                        <option value="@r.Id">@r.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
                     </form>
 
                     <div class="text-center mt-3">
