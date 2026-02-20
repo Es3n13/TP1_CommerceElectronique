@@ -8,6 +8,11 @@ using Stripe;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services au container.
+
+// Add Controllers with Views (MVC)
+builder.Services.AddControllersWithViews();
+
+// Keep Razor Pages for transition/legacy pages
 builder.Services.AddRazorPages();
 
 // DbContext
@@ -31,7 +36,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
     });
 
-//Stripe
+// Stripe
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
@@ -49,6 +54,7 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
 }
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -58,6 +64,13 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Routes MVC (doit être avant MapRazorPages)
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Keep Razor Pages pour les pages existantes
 app.MapRazorPages();
 
 app.Run();
+

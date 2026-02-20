@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Accueil";
+    Layout = "_Layout";
+}
+
+@{
+    var restaurants = (IList<BoutiqueElegance.Models.Restaurant>)(ViewBag.Restaurants ?? new List<BoutiqueElegance.Models.Restaurant>());
+    var allTags = (IList<BoutiqueElegance.Models.Tag>)(ViewBag.AllTags ?? new List<BoutiqueElegance.Models.Tag>());
+    var selectedTag = (string?)ViewBag.SelectedTag;
+    var search = (string?)ViewBag.Search;
+}
+
+<section class="filter-bar">
+    <form method="get" asp-controller="Home" asp-action="Index" class="filter-form">
+        <input type="text"
+               name="search"
+               value="@search"
+               placeholder="Rechercher un restaurant..."
+               class="search-input" />
+
+        <select name="selectedTag" class="tag-select">
+            <option value="">Toutes les cuisines</option>
+            @foreach (var tag in allTags)
+            {
+                <option value="@tag.Name" selected="@(tag.Name == selectedTag ? "selected" : null)">
+                    @tag.Name
+                </option>
+            }
+        </select>
+
+        <button type="submit" class="filter-button">Filtrer</button>
+    </form>
+</section>
+
+<section>
+    <h2>Restaurants populaires</h2>
+
+    @if (restaurants.Count == 0)
+    {
+        <p>Aucun restaurant trouvé pour ces critères.</p>
+    }
+    else
+    {
+        <div class="products">
+            @foreach (var restaurant in restaurants)
+            {
+                <div class="product-card">
+                    <img src="@restaurant.ImageUrl" alt="@restaurant.Name" />
+                    <h3>@restaurant.Name</h3>
+                    <p>@restaurant.Description</p>
+                    <p class="tags">
+                        Cuisine:
+                        @{
+                            var cuisines = new List<string>();
+                            foreach (var rt in restaurant.RestaurantTags)
+                            {
+                                cuisines.Add(rt.Tag.Name);
+                            }
+                            @string.Join(", ", cuisines)
+                        }
+                    </p>
+                    <a asp-controller="Restaurants" asp-action="Details" asp-route-id="@restaurant.Id"
+                       class="btn btn-primary">
+                        Voir le menu
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</section>
+

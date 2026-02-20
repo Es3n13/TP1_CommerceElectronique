@@ -1,13 +1,18 @@
-﻿@page
-@model BoutiqueElegance.Pages.Sales.IndexModel
-@{
+﻿@{
     ViewData["Title"] = "Commandes du restaurant";
+    Layout = "_Layout";
 }
 
 <div class="container">
-    <h2 class="page-title">Commandes de @Model.Restaurant?.Name</h2>
+    @{
+        var restaurant = (BoutiqueElegance.Models.Restaurant?)ViewBag.Restaurant;
+        var orders = (IList<BoutiqueElegance.Models.Order>)(ViewBag.Orders ?? new List<BoutiqueElegance.Models.Order>());
+        var totalRevenue = (decimal)(ViewBag.TotalRestaurantRevenue ?? 0m);
+    }
 
-    @if (Model.Restaurant == null)
+    <h2 class="page-title">Commandes de @restaurant?.Name</h2>
+
+    @if (restaurant == null)
     {
         <div class="empty-state">
             <div class="empty-state-icon">🍽️</div>
@@ -15,7 +20,7 @@
             <p>Aucun restaurant n'est associé à votre compte vendeur.</p>
         </div>
     }
-    else if (!Model.Orders.Any())
+    else if (orders.Count == 0)
     {
         <div class="empty-state">
             <div class="empty-state-icon">📦</div>
@@ -27,11 +32,11 @@
     {
         <p class="mb-3">
             Montant total gagné :
-            <strong>@Model.TotalRestaurantRevenue.ToString("0.00") $</strong>
+            <strong>@totalRevenue.ToString("0.00") $</strong>
         </p>
 
         <div class="orders-grid">
-            @foreach (var order in Model.Orders)
+            @foreach (var order in orders)
             {
                 <div class="order-card">
                     <!-- En-tête -->
@@ -59,7 +64,7 @@
 
                     <!-- Footer -->
                     <div class="order-footer">
-                        <a href="@Url.Page("/Sales/Details", new { id = order.Id })"
+                        <a asp-controller="Sales" asp-action="Details" asp-route-id="@order.Id"
                            class="btn btn-view-details">
                             Voir les détails
                             <span class="arrow">→</span>
@@ -72,4 +77,3 @@
         </div>
     }
 </div>
-

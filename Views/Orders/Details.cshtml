@@ -1,18 +1,20 @@
-﻿@page "{id:int}"
-@model BoutiqueElegance.Pages.Orders.DetailsModel
-
-@{
+﻿@{
     ViewData["Title"] = "Détails de la commande";
+    Layout = "_Layout";
 }
 
 <div class="container">
-    @if (Model.Order == null)
+    @{
+        var order = (BoutiqueElegance.Models.Order?)ViewBag.Order;
+    }
+
+    @if (order == null)
     {
         <div class="error-state">
             <div class="error-icon"></div>
             <h3>Commande introuvable</h3>
             <p>La commande que vous recherchez n'existe pas.</p>
-            <a href="@Url.Page("/Orders/Index")" class="btn btn-primary">Retour à mes commandes</a>
+            <a asp-controller="Orders" asp-action="Index" class="btn btn-primary">Retour à mes commandes</a>
         </div>
     }
     else
@@ -20,8 +22,8 @@
         <!-- En-tête -->
         <div class="order-details-header">
             <div class="header-content">
-                <a href="@Url.Page("/Orders/Index")" class="link-back">← Retour à mes commandes</a>
-                <h2 class="page-title">Commande #@Model.Order.Id</h2>
+                <a asp-controller="Orders" asp-action="Index" class="link-back">← Retour à mes commandes</a>
+                <h2 class="page-title">Commande #@order.Id</h2>
             </div>
         </div>
 
@@ -33,19 +35,19 @@
                     <div class="info-grid">
                         <div class="info-item">
                             <span class="info-label">Date de commande</span>
-                            <p class="info-value">@Model.Order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")</p>
+                            <p class="info-value">@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")</p>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Statut</span>
                             <p class="info-value">
-                                <span class="status-badge @Model.GetStatusClass(Model.Order.Status)">
-                                    @Model.GetStatusLabel(Model.Order.Status)
+                                <span class="status-badge @GetStatusClass(order.Status)">
+                                    @GetStatusLabel(order.Status)
                                 </span>
                             </p>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Restaurant</span>
-                            <p class="info-value">@(Model.Order.Restaurant?.Name ?? "Non spécifié")</p>
+                            <p class="info-value">@(order.Restaurant?.Name ?? "Non spécifié")</p>
                         </div>
                     </div>
                 </div>
@@ -54,7 +56,7 @@
                 <div class="items-card">
                     <h3 class="card-title">Articles commandés</h3>
                     <div class="order-items-list">
-                        @foreach (var item in Model.Order.Items)
+                        @foreach (var item in order.Items)
                         {
                             <div class="order-item-row">
                                 <div class="item-details">
@@ -85,9 +87,33 @@
 
                 <div class="summary-total">
                     <span class="total-label">Total:</span>
-                    <span class="total-amount">@Model.Order.TotalAmount $</span>
+                    <span class="total-amount">@order.TotalAmount $</span>
                 </div>
             </div>
         </div>
     }
 </div>
+
+@functions {
+    private string GetStatusClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "status-pending",
+            "paid" => "status-paid",
+            "failed" => "status-failed",
+            _ => "status-pending"
+        };
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "En attente",
+            "paid" => "Payée",
+            "failed" => "Échouée",
+            _ => status ?? "Inconnue"
+        };
+    }
+}

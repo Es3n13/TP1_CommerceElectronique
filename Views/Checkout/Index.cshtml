@@ -1,8 +1,6 @@
-﻿@page
-@model BoutiqueElegance.Pages.Checkout.IndexModel
-
-@{
+﻿@{
     ViewData["Title"] = "Paiement";
+    Layout = "_Layout";
 }
 
 <div class="container">
@@ -16,11 +14,11 @@
         <!-- Résumé de la commande -->
         <div class="checkout-summary-section">
             <div class="summary-card">
-                <h2 class="section-title">📋 Résumé de votre commande</h2>
+                <h2 class="section-title">Résumé de votre commande</h2>
 
                 <!-- Items de la commande -->
                 <div class="order-items-summary">
-                    @foreach (var item in Model.Cart.Items)
+                    @foreach (var item in ((BoutiqueElegance.Models.Cart)ViewBag.Cart).Items)
                     {
                         <div class="summary-item">
                             <div class="item-info">
@@ -40,11 +38,11 @@
                 <!-- Total final -->
                 <div class="final-total">
                     <span class="total-label">Total à payer:</span>
-                    <span class="total-amount">@Model.Total.ToString("0.00") $</span>
+                    <span class="total-amount">@((decimal)ViewBag.Total).ToString("0.00") $</span>
                 </div>
 
                 <!-- Retour au panier -->
-                <a href="@Url.Page("/Cart/Index")" class="link-back">← Retour au panier</a>
+                <a asp-controller="Cart" asp-action="Index" class="link-back">← Retour au panier</a>
             </div>
         </div>
 
@@ -53,7 +51,7 @@
             <div class="payment-card">
                 <h2 class="section-title">💳 Informations de paiement</h2>
 
-                <form id="payment-form" method="post" class="payment-form">
+                <form id="payment-form" method="post" asp-controller="Checkout" asp-action="Index" class="payment-form">
                     <!-- champ caché pour renvoyer l'id du PaymentIntent confirmé -->
                     <input type="hidden" id="paymentIntentId" name="paymentIntentId" />
 
@@ -62,7 +60,7 @@
                         <label for="cardHolder" class="form-label">Nom sur la carte</label>
                         <input type="text"
                                id="cardHolder"
-                               asp-for="CardHolderName"
+                               name="cardHolderName"
                                class="form-input"
                                placeholder="Jean Dupont"
                                required />
@@ -73,8 +71,9 @@
                         <label for="email" class="form-label">Adresse courriel</label>
                         <input type="email"
                                id="email"
-                               asp-for="Email"
+                               name="email"
                                class="form-input"
+                               value="@ViewBag.Email"
                                placeholder="jean@exemple.com"
                                required />
                     </div>
@@ -89,7 +88,7 @@
 
                     <!-- Bouton payer -->
                     <button type="submit" id="card-button" class="btn-pay">
-                        Payer @Model.Total.ToString("0.00") $
+                        Payer @((decimal)ViewBag.Total).ToString("0.00") $
                         <span class="btn-arrow">→</span>
                     </button>
                 </form>
@@ -107,9 +106,8 @@
 @section Scripts {
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        const stripe = Stripe("@Model.PublishableKey");
+        const stripe = Stripe("@ViewBag.PublicKey");
         const elements = stripe.elements();
-
         const cardElement = elements.create('card', {
             hidePostalCode: false
         });
@@ -119,7 +117,7 @@
         const cardButton = document.getElementById('card-button');
         const cardholderNameInput = document.getElementById('cardHolder');
         const cardErrors = document.getElementById('card-errors');
-        const clientSecret = "@Model.ClientSecret";
+        const clientSecret = "@ViewBag.ClientSecret";
         const paymentIntentIdInput = document.getElementById('paymentIntentId');
 
         paymentForm.addEventListener('submit', async (event) => {
@@ -153,6 +151,3 @@
         });
     </script>
 }
-
-
-

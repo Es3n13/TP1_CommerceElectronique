@@ -85,5 +85,16 @@ namespace BoutiqueElegance.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task ClearCartAsync()
+        {
+            var cart = await GetOrCreateCartAsync();
+
+            if (cart?.Items != null)
+            {
+                cart.Items.Clear();
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

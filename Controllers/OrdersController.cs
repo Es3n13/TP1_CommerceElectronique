@@ -3,37 +3,52 @@ using BoutiqueElegance.Data;
 using BoutiqueElegance.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace BoutiqueElegance.Pages.Orders
+namespace BoutiqueElegance.Controllers
 {
     [Authorize(Roles = "Client")]
-    public class DetailsModel : PageModel
+    public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public DetailsModel(ApplicationDbContext context)
+        public OrdersController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public Order? Order { get; set; }
-
-        public async Task<IActionResult> OnGetAsync(int id)
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            Order = await _context.Orders
+
+            var orders = await _context.Orders
+                .Where(o => o.ClientId == userId)
+                .OrderByDescending(o => o.CreatedAt)
+                .Include(o => o.Items)
+                .ToListAsync();
+
+            ViewBag.Orders = orders;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var order = await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Plat)
                 .Include(o => o.Invoice)
                 .Include(o => o.Restaurant)
                 .FirstOrDefaultAsync(o => o.Id == id && o.ClientId == userId);
 
-            if (Order == null)
+            if (order == null)
                 return NotFound();
 
-            return Page();
+            ViewBag.Order = order;
+            return View();
         }
 
         // Retourne la classe CSS du badge de statut
@@ -48,7 +63,7 @@ namespace BoutiqueElegance.Pages.Orders
             };
         }
 
-        ///Retourne le label du statut
+        // Retourne le label du statut en français
         public string GetStatusLabel(string status)
         {
             return status?.ToLower() switch
@@ -61,5 +76,4 @@ namespace BoutiqueElegance.Pages.Orders
         }
     }
 }
-
 

@@ -1,17 +1,20 @@
-﻿@page "{id:int}"
-@model BoutiqueElegance.Pages.Sales.DetailsModel
-@{
+﻿@{
     ViewData["Title"] = "Détails de la commande (restaurant)";
+    Layout = "_Layout";
+}
+
+@{
+    var order = (BoutiqueElegance.Models.Order?)ViewBag.Order;
 }
 
 <div class="container">
-    @if (Model.Order == null)
+    @if (order == null)
     {
         <div class="error-state">
             <div class="error-icon"></div>
             <h3>Commande introuvable</h3>
             <p>La commande que vous recherchez n'existe pas ou n'est pas liée à votre restaurant.</p>
-            <a href="@Url.Page("/Sales/Index")" class="btn btn-primary">
+            <a asp-controller="Sales" asp-action="Index" class="btn btn-primary">
                 Retour aux commandes du restaurant
             </a>
         </div>
@@ -22,7 +25,7 @@
         <div class="order-details-header">
             <div>
                 <h2 class="page-title">
-                    Commande #@Model.Order.Id – @Model.Order.Restaurant?.Name
+                    Commande #@order.Id – @order.Restaurant?.Name
                 </h2>
             </div>
         </div>
@@ -36,21 +39,21 @@
                         <div class="info-item">
                             <span class="info-label">Date de commande</span>
                             <p class="info-value">
-                                @Model.Order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
+                                @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
                             </p>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Statut</span>
                             <p class="info-value">
-                                <span class="status-badge @Model.GetStatusClass(Model.Order.Status)">
-                                    @Model.GetStatusLabel(Model.Order.Status)
+                                <span class="status-badge @GetStatusClass(order.Status)">
+                                    @GetStatusLabel(order.Status)
                                 </span>
                             </p>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Client</span>
                             <p class="info-value">
-                                @Model.Order.Client?.FullName
+                                @order.Client?.FullName
                             </p>
                         </div>
                     </div>
@@ -60,7 +63,7 @@
                 <div class="items-card">
                     <h3 class="card-title">Articles de la commande</h3>
                     <div class="order-items-list">
-                        @foreach (var item in Model.Order.Items)
+                        @foreach (var item in order.Items)
                         {
                             <div class="order-item-row">
                                 <div class="item-details">
@@ -97,17 +100,41 @@
                     <div class="summary-total">
                         <span class="total-label">Total:</span>
                         <span class="total-amount">
-                            @Model.Order.TotalAmount $
+                            @order.TotalAmount $
                         </span>
                     </div>
                 </div>
             </div>
 
             <div class="header-content">
-                <a href="@Url.Page("/Sales/Index")" class="btn btn-primary">
+                <a asp-controller="Sales" asp-action="Index" class="btn btn-primary">
                     ← Retour aux commandes du restaurant
                 </a>
             </div>
         </div>
     }
 </div>
+
+@functions {
+    private string GetStatusClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "status-pending",
+            "paid" => "status-paid",
+            "failed" => "status-failed",
+            _ => "status-pending"
+        };
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "En attente",
+            "paid" => "Payée",
+            "failed" => "Échouée",
+            _ => status ?? "Inconnue"
+        };
+    }
+}

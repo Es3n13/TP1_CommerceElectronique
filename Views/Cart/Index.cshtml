@@ -1,40 +1,49 @@
-﻿@page
-@model BoutiqueElegance.Pages.Cart.IndexModel
+﻿@model BoutiqueElegance.Models.Cart
 
 @{
     ViewData["Title"] = "Panier";
+    Layout = "_Layout";
+    var total = Model?.Items?.Sum(i => i.UnitPrice * i.Quantity) ?? 0;
+}
+
+<!-- Afficher la modale de conflit si nécessaire -->
+@if (TempData["ShowConflict"] != null && (bool)TempData["ShowConflict"])
+{
+    @await Html.PartialAsync("_CartConflict", new
+    {
+        CurrentRestaurant = TempData["CurrentRestaurant"],
+        NewRestaurant = TempData["NewRestaurant"],
+        PlatId = TempData["PlatId"]
+    })
 }
 
 <div class="container">
     <h2 class="page-title">Votre panier</h2>
 
-    @if (Model.Cart.Items == null || !Model.Cart.Items.Any())
+    @if (Model?.Items == null || !Model.Items.Any())
     {
         <div class="empty-cart">
-            <div class="empty-cart-icon"></div>
+            <div class="empty-cart-icon">🛒</div>
             <h3>Votre panier est vide</h3>
             <p>Découvrez les délicieux plats et ajoutez-les à votre panier</p>
-            <a href="@Url.Page("/Index")" class="btn btn-primary">Continuer vos achats</a>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Continuer vos achats</a>
         </div>
     }
     else
     {
         <div class="cart-wrapper">
-            <!--PPanier  -->
+            <!-- PPanier -->
             <div class="cart-items-section">
                 <div class="cart-items">
-                    @foreach (var item in Model.Cart.Items)
+                    @foreach (var item in Model.Items)
                     {
                         <div class="cart-item-card">
-
-                            <!-- Details -->
                             <div class="item-content">
                                 <h4 class="item-name">@item.Plat.Name</h4>
                                 <p class="item-description">@item.Plat.Description</p>
                                 <p class="item-unit-price">@item.UnitPrice $ <span class="per-unit">l'unité</span></p>
                             </div>
 
-                            <!-- Quantité et action -->
                             <div class="item-footer">
                                 <div class="quantity-control">
                                     <span class="quantity-label">Quantité: <strong>@item.Quantity</strong></span>
@@ -45,9 +54,13 @@
                                     <span class="subtotal-amount">@(item.UnitPrice* item.Quantity) $</span>
                                 </div>
 
-                                <form method="post" style="display: inline;">
+                                <!-- Bouton supprimer -->
+                                <form method="post" asp-action="RemoveItem" style="display: inline;">
                                     <input type="hidden" name="itemId" value="@item.Id" />
-                                    <button type="submit" asp-page-handler="Delete" class="btn-remove" title="Supprimer">
+                                    <button type="submit"
+                                            class="btn-remove"
+                                            title="Supprimer"
+                                            onclick="return confirm('Êtes-vous sûr ?');">
                                         Supprimer
                                     </button>
                                 </form>
@@ -57,21 +70,23 @@
                 </div>
             </div>
 
-            <!-- Résumé de la commande -->
+            <!-- Résumé -->
             <div class="cart-summary">
-                <h3>Total</h3>
-
+                <h3>Résumé de commande</h3>
+                <div class="summary-line">
+                    <span class="summary-label">Sous-total:</span>
+                    <span class="summary-value">@total $</span>
+                </div>
+                <div class="summary-divider"></div>
                 <div class="summary-total">
-                    <span class="total-label">Montant:</span>
-                    <span class="total-amount">@Model.GetTotal().ToString("0.00") $</span>
+                    <span class="total-label">Total:</span>
+                    <span class="total-amount">@total.ToString("0.00") $</span>
                 </div>
 
-                <a href="@Url.Page("/Checkout/Index")" class="btn btn-checkout">
-                    Passer au paiement
-                    <span class="arrow">→</span>
+                <a href="@Url.Action("Index", "Checkout")" class="btn btn-checkout">
+                    Passer au paiement <span class="arrow">→</span>
                 </a>
-
-                <a href="@Url.Page("/Index")" class="btn btn-secondary">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
                     Continuer vos achats
                 </a>
             </div>

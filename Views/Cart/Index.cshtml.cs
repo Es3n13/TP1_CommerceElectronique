@@ -3,7 +3,7 @@ using BoutiqueElegance.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BoutiqueElegance.Pages.Cart
+namespace BoutiqueElegance.Views.Cart
 {
     public class IndexModel : PageModel
     {
@@ -14,7 +14,7 @@ namespace BoutiqueElegance.Pages.Cart
             _cartService = cartService;
         }
 
-        public BoutiqueElegance.Models.Cart Cart { get; set; } = new BoutiqueElegance.Models.Cart();
+        public Models.Cart Cart { get; set; } = new Models.Cart();
 
         public async Task OnGetAsync()
         {

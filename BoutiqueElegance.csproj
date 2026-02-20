@@ -16,4 +16,12 @@
     <PackageReference Include="Stripe.net" Version="50.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\Account\" />
+    <Folder Include="Pages\Checkout\" />
+    <Folder Include="Pages\Orders\" />
+    <Folder Include="Pages\Restaurants\" />
+    <Folder Include="Pages\Sales\" />
+  </ItemGroup>
+
 </Project>

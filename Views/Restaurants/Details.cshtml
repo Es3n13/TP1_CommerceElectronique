@@ -1,10 +1,13 @@
-﻿@page "{id:int}"
-@model BoutiqueElegance.Pages.Restaurants.DetailsModel
-@{
-    ViewData["Title"] = Model.Restaurant?.Name ?? "Restaurant";
+﻿@{
+    ViewData["Title"] = ViewBag.Restaurant?.Name ?? "Restaurant";
+    Layout = "_Layout";
 }
 
-@if (Model.Restaurant == null)
+@{
+    var restaurant = (BoutiqueElegance.Models.Restaurant?)ViewBag.Restaurant;
+}
+
+@if (restaurant == null)
 {
     <div class="container">
         <div class="error-state">
@@ -13,7 +16,7 @@
             </div>
             <h3>Restaurant introuvable</h3>
             <p>Le restaurant que vous recherchez n'existe pas.</p>
-            <a href="@Url.Page("/Index")" class="btn btn-primary">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
                 <i class="bi bi-house-door me-2"></i>Retour à l'accueil
             </a>
         </div>
@@ -23,17 +26,17 @@ else
 {
     <!-- En-tête restaurant -->
     <section class="restaurant-hero">
-        <img src="@Model.Restaurant.ImageUrl" alt="@Model.Restaurant.Name" class="hero-image" />
+        <img src="@restaurant.ImageUrl" alt="@restaurant.Name" class="hero-image" />
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <div class="container">
-                <h1 class="restaurant-title">@Model.Restaurant.Name</h1>
+                <h1 class="restaurant-title">@restaurant.Name</h1>
                 <p class="restaurant-location">
-                    <i class="bi bi-geo-alt-fill me-2"></i>@Model.Restaurant.Address
+                    <i class="bi bi-geo-alt-fill me-2"></i>@restaurant.Address
                 </p>
                 <div class="restaurant-tags">
                     <span class="cuisine-tag">
-                        <i class="bi bi-cup-hot me-2"></i>@Model.GetCuisineDisplay()
+                        <i class="bi bi-cup-hot me-2"></i>@GetCuisineDisplay(restaurant)
                     </span>
                 </div>
             </div>
@@ -43,7 +46,7 @@ else
     <!-- Description -->
     <section class="restaurant-description">
         <div class="container">
-            <p class="description-text">@Model.Restaurant.Description</p>
+            <p class="description-text">@restaurant.Description</p>
         </div>
     </section>
 
@@ -54,7 +57,7 @@ else
                 <i class="bi bi-card-list me-2"></i>Notre Menu
             </h2>
 
-            @if (!Model.Restaurant.Plats.Any())
+            @if (!restaurant.Plats.Any())
             {
                 <div class="empty-menu">
                     <div class="empty-menu-icon">
@@ -66,7 +69,7 @@ else
             else
             {
                 <div class="menu-grid">
-                    @foreach (var plat in Model.Restaurant.Plats)
+                    @foreach (var plat in restaurant.Plats)
                     {
                         <div class="menu-item-card">
                             <!-- Contenu -->
@@ -81,9 +84,9 @@ else
                                 <p class="item-price">@plat.Price.ToString("0.00") $</p>
 
                                 <!-- Sélecteur de quantité et bouton ajouter -->
-                                <form method="get" action="@Url.Page("/Cart/Add")" class="item-action-form">
+                                <form method="post" asp-controller="Cart" asp-action="Add" class="item-action-form">
                                     <input type="hidden" name="platId" value="@plat.Id" />
-                                    <input type="hidden" name="restaurantId" value="@Model.Restaurant.Id" />
+                                    <input type="hidden" name="restaurantId" value="@restaurant.Id" />
 
                                     <div class="quantity-control">
                                         <button type="button" class="qty-btn qty-minus" onclick="decreaseQty(this)" title="Diminuer la quantité">
@@ -135,5 +138,12 @@ else
     </script>
 }
 
-
+@functions {
+    private string GetCuisineDisplay(BoutiqueElegance.Models.Restaurant restaurant)
+    {
+        if (restaurant?.RestaurantTags == null || !restaurant.RestaurantTags.Any())
+            return "Cuisine générale";
+        return string.Join(", ", restaurant.RestaurantTags.Select(rt => rt.Tag.Name));
+    }
+}
 

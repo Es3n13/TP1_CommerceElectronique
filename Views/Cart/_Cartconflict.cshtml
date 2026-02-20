@@ -1,0 +1,40 @@
+﻿@{
+    var showConflict = TempData["ShowConflict"] ?? false;
+    var currentRestaurant = TempData["CurrentRestaurant"];
+    var newRestaurant = TempData["NewRestaurant"];
+    var platId = TempData["PlatId"];
+}
+
+@if (showConflict is bool && (bool)showConflict)
+{
+    <div class="modal-overlay" id="conflictModal">
+        <div class="modal-content">
+            <h3>⚠️ Conflit de restaurant</h3>
+            
+            <div class="conflict-message">
+                <p>Vous avez des articles du restaurant :</p>
+                <strong class="restaurant-name">@currentRestaurant</strong>
+                
+                <p style="margin-top: 15px;">Vous essayez d'ajouter un article du restaurant :</p>
+                <strong class="restaurant-name" style="color: #dc3545;">@newRestaurant</strong>
+            </div>
+            
+            <p style="margin-top: 20px; color: #666;">Que voulez-vous faire ?</p>
+            
+            <div class="modal-buttons">
+                <form method="post" asp-action="KeepCart" style="flex: 1;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        🛒 Garder mon panier actuel
+                    </button>
+                </form>
+                
+                <form method="post" asp-action="ClearAndAdd" style="flex: 1;">
+                    <input type="hidden" name="platId" value="@platId" />
+                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                        🔄 Commencer un nouveau panier
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}

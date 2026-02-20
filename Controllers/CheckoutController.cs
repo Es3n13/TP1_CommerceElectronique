@@ -1,52 +1,44 @@
-using System.Security.Claims;
+ï»¿using System.Security.Claims;
 using BoutiqueElegance.Data;
 using BoutiqueElegance.Models;
 using BoutiqueElegance.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 
-namespace BoutiqueElegance.Pages.Checkout
+namespace BoutiqueElegance.Controllers
 {
     [Authorize(Roles = "Client")]
-    public class IndexModel : PageModel
+    public class CheckoutController : Controller
     {
         private readonly CartService _cartService;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _config;
 
-        public IndexModel(CartService cartService, ApplicationDbContext context, IConfiguration config)
+        public CheckoutController(CartService cartService, ApplicationDbContext context, IConfiguration config)
         {
             _cartService = cartService;
             _context = context;
             _config = config;
         }
 
-        public BoutiqueElegance.Models.Cart Cart { get; set; } = new BoutiqueElegance.Models.Cart();
-        public decimal Total => Cart.Items.Sum(i => i.UnitPrice * i.Quantity);
-
-        public string PublishableKey => _config["Stripe:PublicKey"]!;
-        public string ClientSecret { get; set; } = string.Empty;
-
-        [BindProperty]
-        public string CardHolderName { get; set; } = string.Empty;
-
-        [BindProperty]
-        public string Email { get; set; } = string.Empty;
-
-        public async Task<IActionResult> OnGetAsync()
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
-            Cart = await _cartService.GetCartAsync();
-            if (!Cart.Items.Any())
-                return RedirectToPage("/Cart/Index");
+            var cart = await _cartService.GetCartAsync();
+            if (!cart.Items.Any())
+                return RedirectToAction("Index", "Cart");
 
-            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+            // RÃ©cupÃ©rer l'email de l'utilisateur connectÃ©
+            var email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
 
-            // Créer le PaymentIntent
-            var amountInCents = (long)(Total * 100);
+            // Calculer le total
+            var total = cart.Items.Sum(i => i.UnitPrice * i.Quantity);
 
+            // CrÃ©er le PaymentIntent Stripe
+            StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+            var amountInCents = (long)(total * 100);
             var service = new PaymentIntentService();
             var options = new PaymentIntentCreateOptions
             {
@@ -56,52 +48,60 @@ namespace BoutiqueElegance.Pages.Checkout
                 {
                     Enabled = true
                 },
-                ReceiptEmail = Email
+                ReceiptEmail = email
             };
-
             var intent = await service.CreateAsync(options);
-            ClientSecret = intent.ClientSecret;
 
-            return Page();
+            // Passer les donnÃ©es Ã  la vue via ViewBag
+            ViewBag.Cart = cart;
+            ViewBag.Total = total;
+            ViewBag.PublicKey = _config["Stripe:PublicKey"];
+            ViewBag.ClientSecret = intent.ClientSecret;
+            ViewBag.Email = email;
+
+            return View();
         }
 
-        // OnPostAsync nouvelle version : on ne crée plus le PaymentIntent ici,
-        // on suppose qu'il est confirmé côté client et on reçoit l'id du PaymentIntent.
-        public async Task<IActionResult> OnPostAsync(string paymentIntentId)
+        [HttpPost]
+        public async Task<IActionResult> Index(string paymentIntentId)
         {
-            Cart = await _cartService.GetCartAsync();
-            if (!Cart.Items.Any())
-                return RedirectToPage("/Cart/Index");
+            var cart = await _cartService.GetCartAsync();
+            if (!cart.Items.Any())
+                return RedirectToAction("Index", "Cart");
 
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var client = await _context.Users.FirstAsync(u => u.Id == userId);
 
-            // Vérifier le PaymentIntent côté Stripe
+            // VÃ©rifier le PaymentIntent cÃ´tÃ© Stripe
+            StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
             var service = new PaymentIntentService();
             var intent = await service.GetAsync(paymentIntentId);
 
             if (intent.Status != "succeeded")
             {
-                ModelState.AddModelError(string.Empty, "Le paiement n'a pas été confirmé.");
-                return await OnGetAsync(); // réafficher la page
+                ModelState.AddModelError(string.Empty, "Le paiement n'a pas Ã©tÃ© confirmÃ©.");
+                return await Index();
             }
 
-            // Créer la commande (comme avant, avec RestaurantId)
+            // Calculer le total
+            var total = cart.Items.Sum(i => i.UnitPrice * i.Quantity);
+
+            // CrÃ©er la commande
             var firstPlat = await _context.Plats
                 .Include(p => p.Restaurant)
-                .FirstAsync(p => p.Id == Cart.Items.First().PlatId);
+                .FirstAsync(p => p.Id == cart.Items.First().PlatId);
 
             var order = new Order
             {
                 ClientId = client.Id,
                 RestaurantId = firstPlat.RestaurantId,
                 CreatedAt = DateTime.UtcNow,
-                TotalAmount = Total,
+                TotalAmount = total,
                 Status = "Paid",
                 StripePaymentIntentId = intent.Id
             };
 
-            foreach (var item in Cart.Items)
+            foreach (var item in cart.Items)
             {
                 order.Items.Add(new OrderItem
                 {
@@ -114,6 +114,7 @@ namespace BoutiqueElegance.Pages.Checkout
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
+            // CrÃ©er la facture
             var invoice = new BoutiqueElegance.Models.Invoice
             {
                 OrderId = order.Id,
@@ -122,11 +123,12 @@ namespace BoutiqueElegance.Pages.Checkout
             };
             _context.Invoices.Add(invoice);
 
-            _context.CartItems.RemoveRange(Cart.Items);
-            _context.Carts.Remove(Cart);
+            // Vider le panier
+            _context.CartItems.RemoveRange(cart.Items);
+            _context.Carts.Remove(cart);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("/Orders/Details", new { id = order.Id });
+            return RedirectToAction("Details", "Orders", new { id = order.Id });
         }
     }
 }
