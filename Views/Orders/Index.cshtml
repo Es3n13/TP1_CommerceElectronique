@@ -4,7 +4,10 @@
 }
 
 <div class="container">
-    <h2 class="page-title">Mes commandes</h2>
+    <h2 class="page-title">
+        <i class="bi bi-bag-check" style="margin-right:6px;"></i>
+        Mes commandes
+    </h2>
 
     @{
         var orders = (IList<BoutiqueElegance.Models.Order>)ViewBag.Orders;
@@ -13,10 +16,15 @@
     @if (!orders.Any())
     {
         <div class="empty-state">
-            <div class="empty-state-icon"></div>
+            <div class="empty-state-icon">
+                <i class="bi bi-clipboard-x" style="font-size:2.5rem; color:#bbb;"></i>
+            </div>
             <h3>Aucune commande</h3>
             <p>Vous n'avez pas encore de commande. Commencez à commander dès maintenant!</p>
-            <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Découvrir nos plats</a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-egg-fried" style="margin-right:4px;"></i>
+                Découvrir nos plats
+            </a>
         </div>
     }
     else
@@ -28,13 +36,18 @@
                     <!-- En-tête -->
                     <div class="order-header">
                         <div class="order-info">
-                            <h3 class="order-number">Commande #@order.Id</h3>
+                            <h3 class="order-number">
+                                <i class="bi bi-receipt" style="margin-right:4px;"></i>
+                                Commande #@order.Id
+                            </h3>
                             <p class="order-date">
+                                <i class="bi bi-calendar-event" style="margin-right:4px;"></i>
                                 @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
                             </p>
                         </div>
                         <div class="order-status">
                             <span class="status-badge @GetStatusClass(order.Status)">
+                                <i class="bi bi-circle-fill" style="margin-right:4px; font-size:0.5rem;"></i>
                                 @GetStatusLabel(order.Status)
                             </span>
                         </div>
@@ -42,14 +55,12 @@
 
                     <!-- Contenu -->
                     <div class="order-body">
-                        <div class="order-items-preview">
-                            <p class="items-count">
-                                <strong>@order.Items.Count</strong> article@(order.Items.Count > 1 ? "s" : "")
-                            </p>
-                        </div>
                         <div class="order-total">
                             <span class="total-label">Total:</span>
-                            <span class="total-amount">@order.TotalAmount.ToString("0.00") $</span>
+                            <span class="total-amount">
+                                <i class="bi bi-currency-dollar" style="margin-right:4px;"></i>
+                                @order.TotalAmount.ToString("0.00") $
+                            </span>
                         </div>
                     </div>
 
@@ -57,7 +68,11 @@
 
                     <!-- Footer -->
                     <div class="order-footer">
-                        <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.Id" class="btn btn-view-details">
+                        <a asp-controller="Orders"
+                           asp-action="Details"
+                           asp-route-id="@order.Id"
+                           class="btn btn-view-details">
+                            <i class="bi bi-eye" style="margin-right:4px;"></i>
                             Voir les détails
                             <span class="arrow">→</span>
                         </a>

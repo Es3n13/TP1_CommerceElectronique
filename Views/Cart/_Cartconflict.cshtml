@@ -1,37 +1,51 @@
 ﻿@{
     var showConflict = TempData["ShowConflict"] ?? false;
-    var currentRestaurant = TempData["CurrentRestaurant"];
-    var newRestaurant = TempData["NewRestaurant"];
-    var platId = TempData["PlatId"];
+    var currentRestaurant = ViewData["CurrentRestaurant"] ?? "";
+    var newRestaurant = ViewData["NewRestaurant"] ?? "";
+    var platId = ViewData["PlatId"] ?? "";
 }
 
 @if (showConflict is bool && (bool)showConflict)
 {
     <div class="modal-overlay" id="conflictModal">
         <div class="modal-content">
-            <h3>⚠️ Conflit de restaurant</h3>
-            
-            <div class="conflict-message">
-                <p>Vous avez des articles du restaurant :</p>
+            <h3 class="mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                Conflit de restaurant
+            </h3>
+
+            <div class="conflict-message mb-3">
+                <p class="mb-1">
+                    <i class="bi bi-shop me-2 text-primary"></i>
+                    Vous avez des articles du restaurant :
+                </p>
                 <strong class="restaurant-name">@currentRestaurant</strong>
-                
-                <p style="margin-top: 15px;">Vous essayez d'ajouter un article du restaurant :</p>
-                <strong class="restaurant-name" style="color: #dc3545;">@newRestaurant</strong>
+
+                <p class="mt-3 mb-1">
+                    <i class="bi bi-shop-window me-2 text-danger"></i>
+                    Vous essayez d'ajouter un article du restaurant :
+                </p>
+                <strong class="restaurant-name text-danger">@newRestaurant</strong>
             </div>
-            
-            <p style="margin-top: 20px; color: #666;">Que voulez-vous faire ?</p>
-            
-            <div class="modal-buttons">
-                <form method="post" asp-action="KeepCart" style="flex: 1;">
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        🛒 Garder mon panier actuel
+
+            <p class="mt-2 mb-4 text-muted">
+                <i class="bi bi-question-circle me-1"></i>
+                Que voulez-vous faire ?
+            </p>
+
+            <div class="modal-buttons d-flex gap-2">
+                <form method="post" asp-action="KeepCart" class="flex-fill">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-cart-check me-2"></i>
+                        Garder mon panier actuel
                     </button>
                 </form>
-                
-                <form method="post" asp-action="ClearAndAdd" style="flex: 1;">
+
+                <form method="post" asp-action="ClearAndAdd" class="flex-fill">
                     <input type="hidden" name="platId" value="@platId" />
-                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
-                        🔄 Commencer un nouveau panier
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="bi bi-arrow-repeat me-2"></i>
+                        Commencer un nouveau panier
                     </button>
                 </form>
             </div>

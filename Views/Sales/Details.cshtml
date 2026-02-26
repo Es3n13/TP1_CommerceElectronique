@@ -10,106 +10,137 @@
 <div class="container">
     @if (order == null)
     {
-        <div class="error-state">
-            <div class="error-icon"></div>
+        <div class="error-state text-center py-5">
+            <div class="error-icon mb-3">
+                <i class="bi bi-exclamation-octagon-fill text-danger display-4"></i>
+            </div>
             <h3>Commande introuvable</h3>
-            <p>La commande que vous recherchez n'existe pas ou n'est pas liée à votre restaurant.</p>
-            <a asp-controller="Sales" asp-action="Index" class="btn btn-primary">
-                Retour aux commandes du restaurant
+            <p class="text-muted">
+                La commande que vous recherchez n'existe pas ou n'est pas liée à votre restaurant.
+            </p>
+            <a asp-controller="Sales" asp-action="Index" class="btn btn-primary mt-3">
+                <i class="bi bi-arrow-left me-1"></i>Retour aux commandes du restaurant
             </a>
         </div>
     }
     else
     {
         <!-- En-tête -->
-        <div class="order-details-header">
-            <div>
-                <h2 class="page-title">
+        <div class="order-details-header mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="page-title mb-0">
+                    <i class="bi bi-receipt-cutoff me-2"></i>
                     Commande #@order.Id – @order.Restaurant?.Name
                 </h2>
             </div>
         </div>
 
-        <div class="order-details-wrapper">
-            <div class="order-details-main">
+        <div class="order-details-wrapper row g-4">
+            <div class="order-details-main col-lg-8">
                 <!-- Info commande -->
-                <div class="info-card">
-                    <h3 class="card-title">Informations de la commande</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">Date de commande</span>
-                            <p class="info-value">
-                                @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
-                            </p>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Statut</span>
-                            <p class="info-value">
-                                <span class="status-badge @GetStatusClass(order.Status)">
-                                    @GetStatusLabel(order.Status)
+                <div class="info-card card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title h5 mb-3">
+                            <i class="bi bi-info-circle me-2"></i>Informations de la commande
+                        </h3>
+                        <div class="info-grid row g-3">
+                            <div class="info-item col-md-4">
+                                <span class="info-label text-muted d-block">
+                                    <i class="bi bi-calendar-event me-1"></i>Date de commande
                                 </span>
-                            </p>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Client</span>
-                            <p class="info-value">
-                                @order.Client?.FullName
-                            </p>
+                                <p class="info-value mb-0">
+                                    @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
+                                </p>
+                            </div>
+                            <div class="info-item col-md-4">
+                                <span class="info-label text-muted d-block">
+                                    <i class="bi bi-flag me-1"></i>Statut
+                                </span>
+                                <p class="info-value mb-0">
+                                    <span class="status-badge @GetStatusClass(order.Status)">
+                                        <i class="bi @GetStatusIcon(order.Status) me-1"></i>
+                                        @GetStatusLabel(order.Status)
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="info-item col-md-4">
+                                <span class="info-label text-muted d-block">
+                                    <i class="bi bi-person me-1"></i>Client
+                                </span>
+                                <p class="info-value mb-0">
+                                    @order.Client?.FullName
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Items -->
-                <div class="items-card">
-                    <h3 class="card-title">Articles de la commande</h3>
-                    <div class="order-items-list">
-                        @foreach (var item in order.Items)
-                        {
-                            <div class="order-item-row">
-                                <div class="item-details">
-                                    <h4 class="item-name">@item.Plat.Name</h4>
-                                    @if (!string.IsNullOrEmpty(item.Plat.Description))
-                                    {
-                                        <p class="item-description">@item.Plat.Description</p>
-                                    }
+                <div class="items-card card">
+                    <div class="card-body">
+                        <h3 class="card-title h5 mb-3">
+                            <i class="bi bi-basket me-2"></i>Articles de la commande
+                        </h3>
+                        <div class="order-items-list">
+                            @foreach (var item in order.Items)
+                            {
+                                <div class="order-item-row d-flex flex-wrap align-items-center py-2 border-bottom">
+                                    <div class="item-details flex-grow-1">
+                                        <h4 class="item-name h6 mb-1">
+                                            <i class="bi bi-egg-fried me-1 text-warning"></i>@item.Plat.Name
+                                        </h4>
+                                        @if (!string.IsNullOrEmpty(item.Plat.Description))
+                                        {
+                                            <p class="item-description text-muted mb-0">@item.Plat.Description</p>
+                                        }
+                                    </div>
+                                    <div class="item-quantity text-center px-3">
+                                        <span class="qty-label d-block text-muted small">Quantité</span>
+                                        <span class="qty-value fw-semibold">
+                                            <i class="bi bi-bag-plus me-1"></i>@item.Quantity
+                                        </span>
+                                    </div>
+                                    <div class="item-price text-center px-3">
+                                        <span class="price-label d-block text-muted small">Prix unitaire</span>
+                                        <span class="price-value">
+                                            <i class="bi bi-cash-coin me-1"></i>@item.UnitPrice $
+                                        </span>
+                                    </div>
+                                    <div class="item-subtotal text-end px-3">
+                                        <span class="subtotal-label d-block text-muted small">Sous-total</span>
+                                        <span class="subtotal-value fw-semibold">
+                                            <i class="bi bi-calculator me-1"></i>@(item.UnitPrice* item.Quantity) $
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="item-quantity">
-                                    <span class="qty-label">Quantité:</span>
-                                    <span class="qty-value">@item.Quantity</span>
-                                </div>
-                                <div class="item-price">
-                                    <span class="price-label">Prix unitaire:</span>
-                                    <span class="price-value">@item.UnitPrice $</span>
-                                </div>
-                                <div class="item-subtotal">
-                                    <span class="subtotal-label">Sous-total:</span>
-                                    <span class="subtotal-value">
-                                        @(item.UnitPrice* item.Quantity) $
-                                    </span>
-                                </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Sidebar sommaire -->
-            <div class="order-details-sidebar">
-                <div class="summary-card">
-                    <div class="summary-divider"></div>
-                    <div class="summary-total">
-                        <span class="total-label">Total:</span>
-                        <span class="total-amount">
-                            @order.TotalAmount $
-                        </span>
+            <div class="order-details-sidebar col-lg-4">
+                <div class="summary-card card">
+                    <div class="card-body">
+                        <h4 class="h6 mb-3">
+                            <i class="bi bi-graph-up-arrow me-2"></i>Récapitulatif
+                        </h4>
+                        <div class="summary-divider mb-3 border-top"></div>
+                        <div class="summary-total d-flex justify-content-between align-items-center">
+                            <span class="total-label text-muted">Total:</span>
+                            <span class="total-amount fw-bold fs-4">
+                                <i class="bi bi-currency-dollar me-1"></i>@order.TotalAmount
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="header-content">
-                <a asp-controller="Sales" asp-action="Index" class="btn btn-primary">
-                    ← Retour aux commandes du restaurant
-                </a>
+                <div class="mt-3">
+                    <a asp-controller="Sales" asp-action="Index" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-arrow-left me-1"></i>Retour aux commandes du restaurant
+                    </a>
+                </div>
             </div>
         </div>
     }
@@ -137,4 +168,16 @@
             _ => status ?? "Inconnue"
         };
     }
+
+    private string GetStatusIcon(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "bi-hourglass-split",
+            "paid" => "bi-check-circle-fill",
+            "failed" => "bi-x-circle-fill",
+            _ => "bi-question-circle"
+        };
+    }
 }
+

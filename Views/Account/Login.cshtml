@@ -8,7 +8,9 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Connexion</h2>
+                    <h2 class="card-title text-center mb-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Connexion
+                    </h2>
 
                     @if (!ViewData.ModelState.IsValid)
                     {
@@ -28,22 +30,48 @@
                     <form method="post">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required />
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="email"
+                                       class="form-control"
+                                       id="email"
+                                       name="email"
+                                       required />
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Mot de passe</label>
-                            <input type="password" class="form-control" id="password" name="password" required />
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="password"
+                                       name="password"
+                                       required />
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                        </button>
                     </form>
 
                     <div class="text-center mt-3">
-                        <p>Pas encore de compte ? <a href="@Url.Action("Register")">S'inscrire</a></p>
+                        <p>
+                            Pas encore de compte ?
+                            <a href="@Url.Action("Register")">
+                                <i class="bi bi-person-plus me-1"></i>S'inscrire
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+

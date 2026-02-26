@@ -8,12 +8,16 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Créer un compte</h2>
+                    <h2 class="card-title text-center mb-4">
+                        <i class="bi bi-person-plus me-2"></i>Créer un compte
+                    </h2>
 
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger">
-                            <ul>
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <span>Veuillez corriger les erreurs suivantes :</span>
+                            <ul class="mt-2 mb-0">
                                 @foreach (var modelState in ViewData.ModelState.Values)
                                 {
                                     @foreach (var error in modelState.Errors)
@@ -28,57 +32,134 @@
                     <form method="post">
                         <div class="mb-3">
                             <label for="fullName" class="form-label">Nom complet</label>
-                            <input type="text" class="form-control" id="fullName" name="fullName" required />
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control"
+                                       id="fullName"
+                                       name="fullName"
+                                       required />
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required />
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                <input type="email"
+                                       class="form-control"
+                                       id="email"
+                                       name="email"
+                                       required />
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Mot de passe</label>
-                            <input type="password" class="form-control" id="password" name="password" required />
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="password"
+                                       name="password"
+                                       required />
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="confirmPassword"
+                                       name="confirmPassword"
+                                       required />
+                            </div>
                         </div>
 
                         <!-- Choix du rôle -->
                         <div class="mb-3">
                             <label for="role" class="form-label">Type de compte</label>
-                            <select id="role" name="role" class="form-select" required>
-                                <option value="">-- Choisir un type de compte --</option>
-                                <option value="Client">Client</option>
-                                <option value="Vendeur">Vendeur</option>
-                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-people"></i>
+                                </span>
+                                <select id="role" name="role" class="form-select" required>
+                                    <option value="">-- Choisir un type de compte --</option>
+                                    <option value="Client">Client</option>
+                                    <option value="Vendeur">Vendeur</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Choix du restaurant, visible seulement pour Vendeur -->
                         <div class="mb-3" id="restaurant-group" style="display:none;">
                             <label for="restaurantId" class="form-label">Restaurant</label>
-                            <select id="restaurantId" name="restaurantId" class="form-select">
-                                <option value="">-- Choisir un restaurant --</option>
-                                @if (ViewBag.Restaurants != null)
-                                {
-                                    foreach (var r in ViewBag.Restaurants)
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-shop"></i>
+                                </span>
+                                <select id="restaurantId" name="restaurantId" class="form-select">
+                                    <option value="">-- Choisir un restaurant --</option>
+                                    @if (ViewBag.Restaurants != null)
                                     {
-                                        <option value="@r.Id">@r.Name</option>
+                                        foreach (var r in ViewBag.Restaurants)
+                                        {
+                                            <option value="@r.Id">@r.Name</option>
+                                        }
                                     }
-                                }
-                            </select>
+                                </select>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-person-plus me-2"></i>S'inscrire
+                        </button>
                     </form>
 
                     <div class="text-center mt-3">
-                        <p>Déjà inscrit ? <a href="@Url.Action("Login")">Se connecter</a></p>
+                        <p>
+                            Déjà inscrit ?
+                            <a href="@Url.Action("Login")">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Faire apparaitre la sélection de restaurants lorsqu'on crée un compte Vendeur -->
+@section Scripts {
+    <script>
+        (function () {
+            const roleSelect = document.getElementById('role');
+            const restaurantGroup = document.getElementById('restaurant-group');
+
+            function toggleRestaurant() {
+                if (roleSelect.value === 'Vendeur') {
+                    restaurantGroup.style.display = 'block';
+                } else {
+                    restaurantGroup.style.display = 'none';
+                    const restoSelect = document.getElementById('restaurantId');
+                    if (restoSelect) restoSelect.value = '';
+                }
+            }
+
+            toggleRestaurant();
+
+            roleSelect.addEventListener('change', toggleRestaurant);
+        })();
+    </script>
+}
