@@ -142,16 +142,12 @@ body {
 
 /* ===== HERO ===== */
 .hero {
-  background: linear-gradient(
-    rgba(15, 23, 42, 0.6),
-    rgba(15, 23, 42, 0.6)
-  ),
-  url("https://via.placeholder.com/1400x500");
-  background-size: cover;
-  background-position: center;
-  color: var(--cream);
-  padding: 100px 20px;
-  text-align: center;
+    background: linear-gradient( rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.6) ), url("https://via.placeholder.com/1400x500");
+    background-size: cover;
+    background-position: center;
+    color: var(--cream);
+    padding: 30px 20px;
+    text-align: center;
 }
 
 .hero h2 {
@@ -1260,19 +1256,21 @@ body {
         gap: 15px;
     }
 
-    /* Pay Button */
-    .btn-pay {
-        background: linear-gradient(135deg, var(--gold), #C9A876);
-        color: white;
-        border: none;
-        padding: 16px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-    }
+/* Bouton payer */
+.btn-pay {
+    background: linear-gradient(135deg, var(--gold), #C9A876);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.2;
+}
 
 /* ===== MENU FOOTER & CART SUMMARY ===== */
 

@@ -1,0 +1,164 @@
+﻿@{
+    ViewData["Title"] = "Détails de la commande";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    @{
+        var order = (BoutiqueElegance.Models.Order?)ViewBag.Order;
+    }
+
+    @if (order == null)
+    {
+        <div class="error-state text-center py-5">
+            <div class="error-icon mb-3">
+                <i class="bi bi-exclamation-octagon-fill text-danger display-4"></i>
+            </div>
+            <h3>Commande introuvable</h3>
+            <p class="text-muted">La commande que vous recherchez n'existe pas.</p>
+            <a asp-controller="Orders" asp-action="Index" class="btn btn-primary mt-3">
+                <i class="bi bi-arrow-left me-1"></i>Retour à mes commandes
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- En-tête -->
+        <div class="order-details-header mb-4">
+            <div class="header-content d-flex justify-content-between align-items-center">
+                <a asp-controller="Orders" asp-action="Index" class="link-back d-inline-flex align-items-center">
+                    <i class="bi bi-arrow-left me-1"></i>Retour à mes commandes
+                </a>
+                <h2 class="page-title mb-0">
+                    <i class="bi bi-receipt-cutoff me-2"></i>Commande #@order.Id
+                </h2>
+            </div>
+        </div>
+
+        <div class="order-details-wrapper">
+            <div class="summary-card card">
+                <div class="card-body">
+                    <!-- Info commande -->
+                    <div class="info-card mb-4">
+                        <h3 class="card-title h5 mb-3">
+                            <i class="bi bi-info-circle me-2"></i>Informations de la commande
+                        </h3>
+                        <div class="info-grid row g-3">
+                            <div class="info-item col-md-4">
+                                <span class="info-label text-muted d-block">
+                                    <i class="bi bi-calendar-event me-1"></i>Date de commande
+                                </span>
+                                <p class="info-value mb-0">
+                                    @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")
+                                </p>
+                            </div>
+                            <div class="info-item col-md-4">
+                                <span class="info-label text-muted d-block">
+                                    <i class="bi bi-flag me-1"></i>Statut
+                                </span>
+                                <p class="info-value mb-0">
+                                    <span class="status-badge @GetStatusClass(order.Status)">
+                                        <i class="bi @GetStatusIcon(order.Status) me-1"></i>
+                                        @GetStatusLabel(order.Status)
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="info-item col-md-4">
+                                <span class="info-label text-muted d-block">
+                                    <i class="bi bi-shop-window me-1"></i>Restaurant
+                                </span>
+                                <p class="info-value mb-0">
+                                    @(order.Restaurant?.Name ?? "Non spécifié")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="items-card">
+                        <h3 class="card-title h5 mb-3">
+                            <i class="bi bi-basket me-2"></i>Articles commandés
+                        </h3>
+                        <div class="order-items-list">
+                            @foreach (var item in order.Items)
+                            {
+                                <div class="order-item-row d-flex flex-wrap align-items-center py-2 border-bottom">
+                                    <div class="item-details flex-grow-1">
+                                        <h4 class="item-name h6 mb-1">@item.Plat.Name</h4>
+                                        @if (!string.IsNullOrEmpty(item.Plat.Description))
+                                        {
+                                            <p class="item-description text-muted mb-0">@item.Plat.Description</p>
+                                        }
+                                    </div>
+                                    <div class="item-quantity text-center px-3">
+                                        <span class="qty-label d-block text-muted small">Quantité</span>
+                                        <span class="qty-value fw-semibold">
+                                            <i class="bi bi-bag-plus me-1"></i>@item.Quantity
+                                        </span>
+                                    </div>
+                                    <div class="item-price text-center px-3">
+                                        <span class="price-label d-block text-muted small">Prix unitaire</span>
+                                        <span class="price-value">
+                                            <i class="bi bi-cash-coin me-1"></i>@item.UnitPrice $
+                                        </span>
+                                    </div>
+                                    <div class="item-subtotal text-end px-3">
+                                        <span class="subtotal-label d-block text-muted small">Sous-total</span>
+                                        <span class="subtotal-value fw-semibold">
+                                            <i class="bi bi-calculator me-1"></i>@(item.UnitPrice* item.Quantity) $
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="summary-divider my-3 border-top"></div>
+
+                    <div class="summary-total d-flex justify-content-between align-items-center">
+                        <span class="total-label text-muted">Total:</span>
+                        <span class="total-amount fw-bold fs-4">
+                            <i class="bi bi-currency-dollar me-1"></i>@order.TotalAmount
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    private string GetStatusClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "status-pending",
+            "paid" => "status-paid",
+            "failed" => "status-failed",
+            _ => "status-pending"
+        };
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "En attente",
+            "paid" => "Payée",
+            "failed" => "Échouée",
+            _ => status ?? "Inconnue"
+        };
+    }
+
+    // Icône Bootstrap associée au statut
+    private string GetStatusIcon(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "pending" => "bi-hourglass-split",
+            "paid" => "bi-check-circle-fill",
+            "failed" => "bi-x-circle-fill",
+            _ => "bi-question-circle"
+        };
+    }
+}

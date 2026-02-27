@@ -1,0 +1,186 @@
+﻿@{
+    ViewData["Title"] = "Paiement";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <!-- Titre de la page -->
+    <div class="checkout-header">
+        <h1 class="page-title">
+            <i class="bi bi-credit-card" style="margin-right:6px;"></i>
+            Finaliser votre commande
+        </h1>
+    </div>
+
+    <!-- Checkout Layout principal -->
+    <div class="checkout-wrapper">
+        <!-- Résumé de la commande -->
+        <div class="checkout-summary-section">
+            <div class="summary-card">
+                <h2 class="section-title">
+                    <i class="bi bi-receipt" style="margin-right:6px;"></i>
+                    Résumé de votre commande
+                </h2>
+
+                <!-- Items de la commande -->
+                <div class="order-items-summary">
+                    @foreach (var item in ((BoutiqueElegance.Models.Cart)ViewBag.Cart).Items)
+                    {
+                        <div class="summary-item">
+                            <div class="item-info">
+                                <h4 class="item-name">
+                                    @item.Plat.Name
+                                </h4>
+                                <p class="item-detail">
+                                    <i class="bi bi-bag-plus" style="margin-right:4px;"></i>
+                                    Quantité: <strong>@item.Quantity</strong>
+                                </p>
+                            </div>
+                            <div class="item-total">
+                                <span class="item-amount">
+                                    <i class="bi bi-cash-coin" style="margin-right:4px;"></i>
+                                    @(item.UnitPrice* item.Quantity) $
+                                </span>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Divider -->
+                <div class="summary-divider"></div>
+
+                <!-- Total final -->
+                <div class="final-total">
+                    <span class="total-label">
+                        <i class="bi bi-currency-dollar" style="margin-right:4px;"></i>
+                        Total à payer:
+                    </span>
+                    <span class="total-amount">@((decimal)ViewBag.Total)$</span>
+                </div>
+
+                <!-- Retour au panier -->
+                <a asp-controller="Cart" asp-action="Index" class="link-back">
+                    <i class="bi bi-arrow-left" style="margin-right:4px;"></i>
+                    Retour au panier
+                </a>
+            </div>
+        </div>
+
+        <!-- Formulaire de paiement -->
+        <div class="checkout-payment-section">
+            <div class="payment-card">
+                <h2 class="section-title">
+                    <i class="bi bi-shield-lock" style="margin-right:6px;"></i>
+                    Informations de paiement
+                </h2>
+
+                <form id="payment-form" method="post" asp-controller="Checkout" asp-action="Index" class="payment-form">
+                    <!-- champ caché pour renvoyer l'id du PaymentIntent confirmé -->
+                    <input type="hidden" id="paymentIntentId" name="paymentIntentId" />
+
+                    <!-- Nom sur la carte -->
+                    <div class="form-group">
+                        <label for="cardHolder" class="form-label">
+                            <i class="bi bi-person" style="margin-right:4px;"></i>
+                            Nom sur la carte
+                        </label>
+                        <input type="text"
+                               id="cardHolder"
+                               name="cardHolderName"
+                               class="form-input"
+                               required />
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="bi bi-envelope" style="margin-right:4px;"></i>
+                            Adresse courriel
+                        </label>
+                        <input type="email"
+                               id="email"
+                               name="email"
+                               class="form-input"
+                               required />
+                    </div>
+
+                    <!-- Stripe Elements (carte) -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-credit-card-2-front" style="margin-right:4px;"></i>
+                            Carte de crédit
+                        </label>
+                        <div id="card-element" class="form-input stripe-card-element"></div>
+                    </div>
+
+                    <div id="card-errors" class="card-errors" role="alert"></div>
+
+                    <!-- Bouton payer -->
+                    <button type="submit" id="card-button" class="btn-pay">
+                        <i class="bi bi-lock-fill" style="margin-right:4px;"></i>
+                        Payer @((decimal)ViewBag.Total)$
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </form>
+
+                <!-- Info Sécurité -->
+                <div class="security-info">
+                    <span class="security-icon">
+                        <i class="bi bi-shield-check" style="margin-right:4px;"></i>
+                    </span>
+                    <p>Vos données sont sécurisées par <strong>Stripe</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe("@ViewBag.PublicKey");
+        const elements = stripe.elements();
+        const cardElement = elements.create('card', {
+            hidePostalCode: false
+        });
+        cardElement.mount('#card-element');
+
+        const paymentForm = document.getElementById('payment-form');
+        const cardButton = document.getElementById('card-button');
+        const cardholderNameInput = document.getElementById('cardHolder');
+        const cardErrors = document.getElementById('card-errors');
+        const clientSecret = "@ViewBag.ClientSecret";
+        const paymentIntentIdInput = document.getElementById('paymentIntentId');
+
+        paymentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            cardButton.disabled = true;
+            cardErrors.textContent = "";
+
+            const { paymentIntent, error } = await stripe.confirmCardPayment(
+                clientSecret,
+                {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: cardholderNameInput.value
+                        }
+                    }
+                }
+            );
+
+            if (error) {
+                cardErrors.textContent = error.message;
+                cardButton.disabled = false;
+            } else if (paymentIntent && paymentIntent.status === "succeeded") {
+                // envoyer l'id du PaymentIntent au backend
+                paymentIntentIdInput.value = paymentIntent.id;
+                paymentForm.submit();
+            } else {
+                cardErrors.textContent = "Le paiement n'a pas pu être confirmé.";
+                cardButton.disabled = false;
+            }
+        });
+    </script>
+}
+

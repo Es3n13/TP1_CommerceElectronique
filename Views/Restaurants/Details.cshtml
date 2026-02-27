@@ -1,0 +1,170 @@
+﻿@{
+    ViewData["Title"] = ViewBag.Restaurant?.Name ?? "Restaurant";
+    Layout = "_Layout";
+}
+
+@{
+    var restaurant = (BoutiqueElegance.Models.Restaurant?)ViewBag.Restaurant;
+}
+
+@if (restaurant == null)
+{
+    <div class="container">
+        <div class="error-state text-center py-5">
+            <div class="error-icon mb-3">
+                <i class="bi bi-exclamation-circle text-danger display-4"></i>
+            </div>
+            <h3>Restaurant introuvable</h3>
+            <p class="text-muted">Le restaurant que vous recherchez n'existe pas.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">
+                <i class="bi bi-house-door me-2"></i>Retour à l'accueil
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <!-- En-tête restaurant -->
+    <section class="restaurant-hero position-relative">
+        <img src="@restaurant.ImageUrl" alt="@restaurant.Name" class="hero-image" />
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="container">
+                <h1 class="restaurant-title">
+                    <i class="bi bi-shop-window me-2"></i>@restaurant.Name
+                </h1>
+                <p class="restaurant-location">
+                    <i class="bi bi-geo-alt-fill me-2"></i>@restaurant.Address
+                </p>
+                <div class="restaurant-tags mt-2">
+                    <span class="cuisine-tag badge bg-light text-dark">
+                        <i class="bi bi-cup-hot me-2"></i>@GetCuisineDisplay(restaurant)
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Description -->
+    <section class="restaurant-description py-4">
+        <div class="container">
+            <p class="description-text mb-0">
+                <i class="bi bi-info-circle me-2"></i>@restaurant.Description
+            </p>
+        </div>
+    </section>
+
+    <!-- Menu -->
+    <section class="menu-section py-4">
+        <div class="container">
+            <h2 class="section-title mb-3">
+                <i class="bi bi-card-list me-2"></i>Notre Menu
+            </h2>
+
+            @if (!restaurant.Plats.Any())
+            {
+                <div class="empty-menu text-center py-4">
+                    <div class="empty-menu-icon mb-2">
+                        <i class="bi bi-inbox text-muted display-5"></i>
+                    </div>
+                    <p class="text-muted mb-0">Aucun plat n'est disponible pour le moment.</p>
+                </div>
+            }
+            else
+            {
+                <div class="menu-grid">
+                    @foreach (var plat in restaurant.Plats)
+                    {
+                        <div class="menu-item-card card">
+                            <div class="item-content card-body">
+                                <h3 class="item-name h5">@plat.Name</h3>
+
+                                @if (!string.IsNullOrEmpty(plat.Description))
+                                {
+                                    <p class="item-description text-muted">@plat.Description</p>
+                                }
+
+                                <!-- Prix -->
+                                <p class="item-price fw-semibold mb-3">
+                                    <i class="bi bi-cash-coin me-1"></i>@plat.Price.ToString("0.00") $
+                                </p>
+
+                                <!-- Sélecteur de quantité et bouton ajouter -->
+                                <form method="post"
+                                      asp-controller="Cart"
+                                      asp-action="AddToCart"
+                                      class="item-action-form d-flex flex-column flex-sm-row align-items-stretch gap-2">
+                                    <input type="hidden" name="platId" value="@plat.Id" />
+                                    <input type="hidden" name="restaurantId" value="@restaurant.Id" />
+
+                                    <div class="quantity-control input-group" style="max-width: 160px;">
+                                        <button type="button"
+                                                class="qty-btn qty-minus btn btn-outline-secondary"
+                                                onclick="decreaseQty(this)"
+                                                title="Diminuer la quantité">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <input type="number"
+                                               name="quantity"
+                                               value="1"
+                                               min="1"
+                                               max="99"
+                                               class="qty-input form-control text-center"
+                                               onchange="validateQuantity(this)"
+                                               oninput="validateQuantity(this)" />
+                                        <button type="button"
+                                                class="qty-btn qty-plus btn btn-outline-secondary"
+                                                onclick="increaseQty(this)"
+                                                title="Augmenter la quantité">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+
+                                    <button type="submit" class="btn-add-cart btn btn-primary flex-grow-1">
+                                        <i class="bi bi-cart-plus me-2"></i>Ajouter
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <script>
+        function increaseQty(btn) {
+            const form = btn.closest('.item-action-form');
+            const input = form.querySelector('.qty-input');
+            if (parseInt(input.value) < 99) {
+                input.value = parseInt(input.value) + 1;
+            }
+        }
+
+        function decreaseQty(btn) {
+            const form = btn.closest('.item-action-form');
+            const input = form.querySelector('.qty-input');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+
+        function validateQuantity(input) {
+            let value = parseInt(input.value) || 1;
+            if (value < 1) value = 1;
+            if (value > 99) value = 99;
+            input.value = value;
+        }
+    </script>
+}
+
+@functions {
+    private string GetCuisineDisplay(BoutiqueElegance.Models.Restaurant restaurant)
+    {
+        if (restaurant?.RestaurantTags == null || !restaurant.RestaurantTags.Any())
+            return "Cuisine générale";
+        return string.Join(", ", restaurant.RestaurantTags.Select(rt => rt.Tag.Name));
+    }
+}
+
+

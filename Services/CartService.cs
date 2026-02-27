@@ -44,28 +44,56 @@ namespace BoutiqueElegance.Services
             return cart;
         }
 
-        public async Task AddToCartAsync(int platId)
+        public async Task AddToCartAsync(int platId, int quantity)
         {
-            var plat = await _context.Plats.FindAsync(platId);
-            if (plat == null) return;
+            if (quantity < 1) quantity = 1;
 
             var cart = await GetOrCreateCartAsync();
 
+            // Charger le plat avec son restaurant
+            var plat = await _context.Plats
+                .Include(p => p.Restaurant)
+                .FirstOrDefaultAsync(p => p.Id == platId);
+
+            if (plat == null) return;
+
+            // S'il y a déjà des articles dans le panier, vérifier le resto du 1er plat
+            if (cart.Items != null && cart.Items.Any())
+            {
+                var firstPlatId = cart.Items.First().PlatId;
+
+                var firstPlat = await _context.Plats
+                    .Include(p => p.Restaurant)
+                    .FirstOrDefaultAsync(p => p.Id == firstPlatId);
+
+                if (firstPlat != null &&
+                    firstPlat.Restaurant?.Id != plat.Restaurant?.Id)
+                {
+                    // Si conflit on leve l'exception
+                    throw new RestaurantConflictException(
+                        currentRestaurantId: firstPlat.Restaurant.Id,
+                        currentRestaurantName: firstPlat.Restaurant.Name,
+                        newRestaurantId: plat.Restaurant.Id,
+                        newRestaurantName: plat.Restaurant.Name
+                    );
+                }
+            }
+
+            // Pas de conflit = ajout normal
             var existingItem = cart.Items.FirstOrDefault(i => i.PlatId == platId);
 
             if (existingItem == null)
             {
-                var item = new CartItem
+                cart.Items.Add(new CartItem
                 {
                     PlatId = platId,
-                    Quantity = 1,
+                    Quantity = quantity,
                     UnitPrice = plat.Price
-                };
-                cart.Items.Add(item);
+                });
             }
             else
             {
-                existingItem.Quantity += 1;
+                existingItem.Quantity += quantity;
             }
 
             await _context.SaveChangesAsync();
@@ -82,6 +110,17 @@ namespace BoutiqueElegance.Services
             if (item != null)
             {
                 _context.CartItems.Remove(item);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task ClearCartAsync()
+        {
+            var cart = await GetOrCreateCartAsync();
+
+            if (cart?.Items != null)
+            {
+                cart.Items.Clear();
                 await _context.SaveChangesAsync();
             }
         }

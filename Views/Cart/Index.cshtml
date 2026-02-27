@@ -1,0 +1,104 @@
+﻿@model BoutiqueElegance.Models.Cart
+
+@{
+    ViewData["Title"] = "Panier";
+    Layout = "_Layout";
+    var total = Model?.Items?.Sum(i => i.UnitPrice * i.Quantity) ?? 0;
+    var showConflict = TempData["ShowConflict"] as bool? ?? false;
+    var currentRestaurant = TempData["CurrentRestaurant"] as string;
+    var newRestaurant = TempData["NewRestaurant"] as string;
+    var platId = TempData["PlatId"] as string;
+}
+
+<div class="container">
+    <h2 class="page-title">
+        <i class="bi bi-cart4" style="margin-right:6px;"></i>Votre panier
+    </h2>
+
+    @if (Model?.Items == null || !Model.Items.Any())
+    {
+        <div class="empty-cart">
+            <div class="empty-cart-icon">
+                <i class="bi bi-cart-x" style="font-size:2.5rem; color:#bbb;"></i>
+            </div>
+            <h3>Votre panier est vide</h3>
+            <p>Découvrez les délicieux plats et ajoutez-les à votre panier</p>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Continuer vos achats</a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-wrapper">
+            <!-- PPanier -->
+            <div class="cart-items-section">
+                <div class="cart-items">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="cart-item-card">
+                            <div class="item-content">
+                                <h4 class="item-name">@item.Plat.Name</h4>
+                                <p class="item-description">@item.Plat.Description</p>
+                                <p class="item-unit-price">
+                                    <i class="bi bi-cash-coin" style="margin-right:4px;"></i>
+                                    @item.UnitPrice $ <span class="per-unit">l'unité</span>
+                                </p>
+                            </div>
+
+                            <div class="item-footer">
+                                <div class="quantity-control">
+                                    <span class="quantity-label">
+                                        Quantité: <strong>@item.Quantity</strong>
+                                    </span>
+                                </div>
+
+                                <div class="item-price">
+                                    <span class="subtotal-label">Sous-total:</span>
+                                    <span class="subtotal-amount">
+                                        <i class="bi bi-calculator" style="margin-right:4px;"></i>
+                                        @(item.UnitPrice* item.Quantity) $
+                                    </span>
+                                </div>
+
+                                <!-- Bouton supprimer -->
+                                <form method="post"
+                                      asp-controller="Cart"
+                                      asp-action="RemoveItem"
+                                      style="display:inline;">
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <button type="submit"
+                                            class="btn-remove"
+                                            title="Supprimer">
+                                        <i class="bi bi-trash3" style="margin-right:4px;"></i>
+                                        Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Résumé -->
+            <div class="cart-summary">
+                <h3>Total</h3>
+                <div class="summary-divider"></div>
+                <div class="summary-total">
+                    <span class="total-label">Montant:</span>
+                    <span class="total-amount">
+                        <i class="bi bi-currency-dollar" style="margin-right:4px;"></i>
+                        @total.ToString("0.00") $
+                    </span>
+                </div>
+
+                <a href="@Url.Action("Index", "Checkout")" class="btn btn-checkout">
+                    <i class="bi bi-credit-card" style="margin-right:4px;"></i>
+                    Passer au paiement <span class="arrow">→</span>
+                </a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left" style="margin-right:4px;"></i>
+                    Continuer vos achats
+                </a>
+            </div>
+        </div>
+    }
+</div>
