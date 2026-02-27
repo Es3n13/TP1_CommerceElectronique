@@ -1225,14 +1225,6 @@ body {
     .form-input::placeholder {
         color: var(--slate-blue);
     }
-
-/* Form Row (Expiry + CVC) */
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
 /* Bouton payer */
 .btn-pay {
     background: linear-gradient(135deg, var(--gold), #C9A876);
