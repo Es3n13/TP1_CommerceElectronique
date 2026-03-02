@@ -15,30 +15,33 @@ namespace BoutiqueElegance.Controllers
         private readonly CartService _cartService;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _config;
+        private readonly ILogger<CheckoutController> _logger;
 
-        public CheckoutController(CartService cartService, ApplicationDbContext context, IConfiguration config)
+        public CheckoutController(
+            CartService cartService,
+            ApplicationDbContext context,
+            IConfiguration config,
+            ILogger<CheckoutController> logger)
         {
             _cartService = cartService;
             _context = context;
             _config = config;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var cart = await _cartService.GetCartAsync();
-            if (!cart.Items.Any())
+            if (cart.Items == null || !cart.Items.Any())
                 return RedirectToAction("Index", "Cart");
 
-            // Récupérer l'email de l'utilisateur connecté
             var email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
-
-            // Calculer le total
             var total = cart.Items.Sum(i => i.UnitPrice * i.Quantity);
 
-            // Créer le PaymentIntent Stripe
             StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
             var amountInCents = (long)(total * 100);
+
             var service = new PaymentIntentService();
             var options = new PaymentIntentCreateOptions
             {
@@ -50,9 +53,9 @@ namespace BoutiqueElegance.Controllers
                 },
                 ReceiptEmail = email
             };
+
             var intent = await service.CreateAsync(options);
 
-            // Passer les données à la vue via ViewBag
             ViewBag.Cart = cart;
             ViewBag.Total = total;
             ViewBag.PublicKey = _config["Stripe:PublicKey"];
@@ -63,73 +66,97 @@ namespace BoutiqueElegance.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(string paymentIntentId)
         {
             var cart = await _cartService.GetCartAsync();
-            if (!cart.Items.Any())
+            if (cart.Items == null || !cart.Items.Any())
                 return RedirectToAction("Index", "Cart");
 
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var client = await _context.Users.FirstAsync(u => u.Id == userId);
-
-            // Vérifier le PaymentIntent côté Stripe
-            StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
-            var service = new PaymentIntentService();
-            var intent = await service.GetAsync(paymentIntentId);
-
-            if (intent.Status != "succeeded")
+            try
             {
-                ModelState.AddModelError(string.Empty, "Le paiement n'a pas été confirmé.");
-                return await Index();
-            }
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var client = await _context.Users.FirstAsync(u => u.Id == userId);
 
-            // Calculer le total
-            var total = cart.Items.Sum(i => i.UnitPrice * i.Quantity);
+                // Vérifier le PaymentIntent côté Stripe
+                StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+                var service = new PaymentIntentService();
+                var intent = await service.GetAsync(paymentIntentId);
 
-            // Créer la commande
-            var firstPlat = await _context.Plats
-                .Include(p => p.Restaurant)
-                .FirstAsync(p => p.Id == cart.Items.First().PlatId);
-
-            var order = new Order
-            {
-                ClientId = client.Id,
-                RestaurantId = firstPlat.RestaurantId,
-                CreatedAt = DateTime.UtcNow,
-                TotalAmount = total,
-                Status = "Paid",
-                StripePaymentIntentId = intent.Id
-            };
-
-            foreach (var item in cart.Items)
-            {
-                order.Items.Add(new OrderItem
+                if (intent.Status != "succeeded")
                 {
-                    PlatId = item.PlatId,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice
-                });
+                    _logger.LogWarning("Payment failed or not confirmed. Status: {Status}", intent.Status);
+                    return RedirectToAction(
+                        "Failure",
+                        new { message = "Le paiement n'a pas été confirmé par le fournisseur de paiement." });
+                }
+
+                var total = cart.Items.Sum(i => i.UnitPrice * i.Quantity);
+
+                var firstPlat = await _context.Plats
+                    .Include(p => p.Restaurant)
+                    .FirstAsync(p => p.Id == cart.Items.First().PlatId);
+
+                var order = new Order
+                {
+                    ClientId = client.Id,
+                    RestaurantId = firstPlat.RestaurantId,
+                    CreatedAt = DateTime.UtcNow,
+                    TotalAmount = total,
+                    Status = "Paid",
+                    StripePaymentIntentId = intent.Id
+                };
+
+                foreach (var item in cart.Items)
+                {
+                    order.Items.Add(new OrderItem
+                    {
+                        PlatId = item.PlatId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice
+                    });
+                }
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                var invoice = new BoutiqueElegance.Models.Invoice
+                {
+                    OrderId = order.Id,
+                    TotalAmount = order.TotalAmount,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Invoices.Add(invoice);
+
+                _context.CartItems.RemoveRange(cart.Items);
+                _context.Carts.Remove(cart);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", "Orders", new { id = order.Id });
             }
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            // Créer la facture
-            var invoice = new BoutiqueElegance.Models.Invoice
+            catch (StripeException ex)
             {
-                OrderId = order.Id,
-                TotalAmount = order.TotalAmount,
-                CreatedAt = DateTime.UtcNow
-            };
-            _context.Invoices.Add(invoice);
+                _logger.LogError(ex, "Stripe error during payment");
+                return RedirectToAction(
+                    "Failure",
+                    new { message = "Une erreur est survenue avec le paiement Stripe. Veuillez réessayer." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during checkout");
+                return RedirectToAction(
+                    "Failure",
+                    new { message = "Une erreur technique est survenue pendant le traitement de votre commande." });
+            }
+        }
 
-            // Vider le panier
-            _context.CartItems.RemoveRange(cart.Items);
-            _context.Carts.Remove(cart);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", "Orders", new { id = order.Id });
+        [HttpGet]
+        public IActionResult Failure(string? message = null)
+        {
+            ViewBag.ErrorMessage = message ?? "La transaction a échoué. Aucun montant n'a été débité.";
+            return View();
         }
     }
 }
+
 

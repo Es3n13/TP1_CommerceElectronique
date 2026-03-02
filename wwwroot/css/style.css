@@ -140,34 +140,55 @@ body {
     }
 
 
-/* ===== HERO ===== */
+/* ===== HERO GLOBAL ===== */
 .hero {
-    background: linear-gradient( rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.6) ), url("https://via.placeholder.com/1400x500");
-    background-size: cover;
-    background-position: center;
-    color: var(--cream);
-    padding: 30px 20px;
+    position: relative;
+    overflow: hidden;
+    padding: 60px 20px;
     text-align: center;
+    color: var(--cream);
 }
 
-.hero h2 {
-  font-size: 42px;
-  margin-bottom: 12px;
+/* Image de fond */
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    filter: none;
+}
+
+/* Contenu par-dessus l’image */
+.hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Typo et spacing */
+.hero h1 {
+    font-size: 42px;
+    margin-bottom: 12px;
 }
 
 .hero p {
-  margin-bottom: 25px;
+    margin-bottom: 25px;
+    font-size: 16px;
 }
 
-.hero button {
-  background: var(--nude);
-  color: var(--dark-blue);
-  border: none;
-  padding: 14px 28px;
-  border-radius: 30px;
-  font-weight: 600;
-  cursor: pointer;
+.hero-button {
+    background: var(--nude);
+    color: var(--dark-blue);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-weight: 600;
 }
+
+    .hero-button:hover {
+        color: var(--dark-blue);
+    }
 
 /* ===== PRODUCTS ===== */
 .products {
@@ -178,29 +199,31 @@ body {
 
 /* ===== CARD ===== */
 .product-card {
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-  transition: transform 0.3s ease;
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    transition: transform 0.3s ease;
 }
 
 .product-card:hover {
   transform: translateY(-8px);
 }
 
-.product-card img {
-  width: 100%;
-  border-radius: 14px;
-  margin-bottom: 15px;
-}
+    /* Image de la card */
+    .product-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 14px;
+        margin-bottom: 12px;
+    }
 
-.product-card h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-}
-
+    .product-card h3 {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
 .price {
   color: var(--gold);
   font-weight: 700;
@@ -290,10 +313,10 @@ body {
 
 /* Item Card */
 .cart-item-card {
-    display: grid;
-    grid-template-columns: 120px 1fr 150px;
+    display: flex;
+    grid-template-columns: 2fr 1fr;
     gap: 20px;
-    align-items: start;
+    align-items: flex-start;
     padding: 20px;
     background: var(--cream);
     border-radius: 15px;
@@ -1245,17 +1268,9 @@ body {
             box-shadow: 0 0 0 3px rgba(176, 141, 87, 0.1);
         }
 
-        .form-input::placeholder {
-            color: var(--slate-blue);
-        }
-
-    /* Form Row (Expiry + CVC) */
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
+    .form-input::placeholder {
+        color: var(--slate-blue);
     }
-
 /* Bouton payer */
 .btn-pay {
     background: linear-gradient(135deg, var(--gold), #C9A876);

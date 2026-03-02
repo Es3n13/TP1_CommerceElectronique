@@ -26,7 +26,7 @@ else
 {
     <!-- En-tête restaurant -->
     <section class="restaurant-hero position-relative">
-        <img src="@restaurant.ImageUrl" alt="@restaurant.Name" class="hero-image" />
+        <img src="@restaurant.BannerImageUrl" alt="@restaurant.Name" class="hero-image" />
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <div class="container">
@@ -72,31 +72,31 @@ else
             }
             else
             {
-                <div class="menu-grid">
-                    @foreach (var plat in restaurant.Plats)
-                    {
-                        <div class="menu-item-card card">
-                            <div class="item-content card-body">
-                                <h3 class="item-name h5">@plat.Name</h3>
+                <form method="post"
+                      asp-controller="Cart"
+                      asp-action="AddMultipleToCart"
+                      class="menu-form">
 
-                                @if (!string.IsNullOrEmpty(plat.Description))
-                                {
-                                    <p class="item-description text-muted">@plat.Description</p>
-                                }
+                    <input type="hidden" name="restaurantId" value="@restaurant.Id" />
 
-                                <!-- Prix -->
-                                <p class="item-price fw-semibold mb-3">
-                                    <i class="bi bi-cash-coin me-1"></i>@plat.Price.ToString("0.00") $
-                                </p>
+                    <div class="menu-grid">
+                        @foreach (var plat in restaurant.Plats)
+                        {
+                            <div class="menu-item-card card">
+                                <div class="item-content card-body">
+                                    <h3 class="item-name h5">@plat.Name</h3>
 
-                                <!-- Sélecteur de quantité et bouton ajouter -->
-                                <form method="post"
-                                      asp-controller="Cart"
-                                      asp-action="AddToCart"
-                                      class="item-action-form d-flex flex-column flex-sm-row align-items-stretch gap-2">
-                                    <input type="hidden" name="platId" value="@plat.Id" />
-                                    <input type="hidden" name="restaurantId" value="@restaurant.Id" />
+                                    @if (!string.IsNullOrEmpty(plat.Description))
+                                    {
+                                        <p class="item-description text-muted">@plat.Description</p>
+                                    }
 
+                                    <!-- Prix -->
+                                    <p class="item-price fw-semibold mb-3">
+                                        <i class="bi bi-cash-coin me-1"></i>@plat.Price.ToString("0.00") $
+                                    </p>
+
+                                    <!-- Sélecteur de quantité uniquement -->
                                     <div class="quantity-control input-group" style="max-width: 160px;">
                                         <button type="button"
                                                 class="qty-btn qty-minus btn btn-outline-secondary"
@@ -104,14 +104,19 @@ else
                                                 title="Diminuer la quantité">
                                             <i class="bi bi-dash"></i>
                                         </button>
+
+                                        <!-- On envoie toujours PlatId + Quantity avec des tableaux -->
+                                        <input type="hidden" name="PlatIds" value="@plat.Id" />
+
                                         <input type="number"
-                                               name="quantity"
-                                               value="1"
-                                               min="1"
+                                               name="Quantities"
+                                               value="0"
+                                               min="0"
                                                max="99"
                                                class="qty-input form-control text-center"
                                                onchange="validateQuantity(this)"
                                                oninput="validateQuantity(this)" />
+
                                         <button type="button"
                                                 class="qty-btn qty-plus btn btn-outline-secondary"
                                                 onclick="increaseQty(this)"
@@ -119,39 +124,43 @@ else
                                             <i class="bi bi-plus"></i>
                                         </button>
                                     </div>
-
-                                    <button type="submit" class="btn-add-cart btn btn-primary flex-grow-1">
-                                        <i class="bi bi-cart-plus me-2"></i>Ajouter
-                                    </button>
-                                </form>
+                                </div>
                             </div>
-                        </div>
-                    }
-                </div>
+                        }
+                    </div>
+
+                    <!-- Bouton global en bas de page -->
+                    <div class="mt-4 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cart-plus me-2"></i>
+                            Ajouter les plats sélectionnés au panier
+                        </button>
+                    </div>
+                </form>
             }
         </div>
     </section>
 
     <script>
         function increaseQty(btn) {
-            const form = btn.closest('.item-action-form');
-            const input = form.querySelector('.qty-input');
+            const card = btn.closest('.menu-item-card');
+            const input = card.querySelector('.qty-input');
             if (parseInt(input.value) < 99) {
                 input.value = parseInt(input.value) + 1;
             }
         }
 
         function decreaseQty(btn) {
-            const form = btn.closest('.item-action-form');
-            const input = form.querySelector('.qty-input');
-            if (parseInt(input.value) > 1) {
+            const card = btn.closest('.menu-item-card');
+            const input = card.querySelector('.qty-input');
+            if (parseInt(input.value) > 0) {
                 input.value = parseInt(input.value) - 1;
             }
         }
 
         function validateQuantity(input) {
-            let value = parseInt(input.value) || 1;
-            if (value < 1) value = 1;
+            let value = parseInt(input.value) || 0;
+            if (value < 0) value = 0;
             if (value > 99) value = 99;
             input.value = value;
         }

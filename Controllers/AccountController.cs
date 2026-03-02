@@ -234,6 +234,65 @@ namespace BoutiqueElegance.Controllers
             }
         }
 
+        // POST: /Account/UpdatePassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePassword(int id, string currentPassword, string newPassword, string confirmPassword)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int currentUserId) || currentUserId != id)
+            {
+                return Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(currentPassword) ||
+                string.IsNullOrWhiteSpace(newPassword) ||
+                string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                TempData["ErrorMessage"] = "Tous les champs mot de passe sont requis.";
+                return RedirectToAction("Profile");
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["ErrorMessage"] = "Les nouveaux mots de passe ne correspondent pas.";
+                return RedirectToAction("Profile");
+            }
+
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                // Vérifier l'ancien mot de passe
+                var currentHash = HashPassword(currentPassword);
+                if (user.PasswordHash != currentHash)
+                {
+                    TempData["ErrorMessage"] = "Ancien mot de passe incorrect.";
+                    return RedirectToAction("Profile");
+                }
+
+                // Mettre à jour le mot de passe
+                user.PasswordHash = HashPassword(newPassword);
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"User {id} password updated");
+                TempData["SuccessMessage"] = "Mot de passe mis à jour avec succès.";
+                return RedirectToAction("Profile");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Password update error: {ex.Message}");
+                TempData["ErrorMessage"] = "Une erreur est survenue lors de la mise à jour du mot de passe.";
+                return RedirectToAction("Profile");
+            }
+        }
+
+
         // POST: /Account/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
