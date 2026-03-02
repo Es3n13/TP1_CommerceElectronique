@@ -51,6 +51,41 @@ namespace BoutiqueElegance.Controllers
             }
         }
 
+        // POST: /Cart/AddMultipleToCart
+        [HttpPost]
+        public async Task<IActionResult> AddMultipleToCart(int restaurantId, int[] PlatIds, int[] Quantities)
+        {
+            if (PlatIds == null || Quantities == null || PlatIds.Length == 0)
+            {
+                return RedirectToAction("Details", "Restaurants", new { id = restaurantId });
+            }
+
+            try
+            {
+                for (int i = 0; i < PlatIds.Length; i++)
+                {
+                    var platId = PlatIds[i];
+                    var quantity = (i < Quantities.Length) ? Quantities[i] : 0;
+
+                    if (quantity <= 0)
+                        continue;
+
+                    await _cartService.AddToCartAsync(platId, quantity);
+                }
+
+                return RedirectToAction("Index", "Cart");
+            }
+            catch (RestaurantConflictException ex)
+            {
+                // Conflit de restaurants
+                TempData["CartError"] =
+                    $"Votre panier contient déjà des plats du restaurant \"{ex.CurrentRestaurantName}\". " +
+                    $"Vous ne pouvez pas ajouter des plats de \"{ex.NewRestaurantName}\" simultanément.";
+
+                return RedirectToAction("Details", "Restaurants", new { id = restaurantId });
+            }
+        }
+
 
         // POST: /Cart/KeepCart
         [HttpPost]

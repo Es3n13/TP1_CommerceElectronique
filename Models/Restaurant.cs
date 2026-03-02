@@ -5,10 +5,17 @@ namespace BoutiqueElegance.Models
     public class Restaurant
     {
         public int Id { get; set; }
+
         public string Name { get; set; }
+
         public string Description { get; set; }
+
         public string Address { get; set; }
-        public string ImageUrl { get; set; }
+
+        public string CardImageUrl { get; set; }
+
+        public string BannerImageUrl { get; set; }
+
         public int? SellerId { get; set; }
         public User? Seller { get; set; }
 
@@ -16,3 +23,4 @@ namespace BoutiqueElegance.Models
         public ICollection<Plat> Plats { get; set; }
     }
 }
+

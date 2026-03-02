@@ -16,4 +16,9 @@
     <PackageReference Include="Stripe.net" Version="50.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\hero\" />
+    <Folder Include="wwwroot\images\restaurants\" />
+  </ItemGroup>
+
 </Project>
