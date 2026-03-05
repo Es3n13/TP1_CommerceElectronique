@@ -96,7 +96,7 @@ else
                                         <i class="bi bi-cash-coin me-1"></i>@plat.Price.ToString("0.00") $
                                     </p>
 
-                                    <!-- Sélecteur de quantité uniquement -->
+                                    <!-- Sélecteur de quantité -->
                                     <div class="quantity-control input-group" style="max-width: 160px;">
                                         <button type="button"
                                                 class="qty-btn qty-minus btn btn-outline-secondary"
@@ -105,7 +105,7 @@ else
                                             <i class="bi bi-dash"></i>
                                         </button>
 
-                                        <!-- On envoie toujours PlatId + Quantity avec des tableaux -->
+                                        <!-- On envoie PlatId + Quantity -->
                                         <input type="hidden" name="PlatIds" value="@plat.Id" />
 
                                         <input type="number"
@@ -129,7 +129,7 @@ else
                         }
                     </div>
 
-                    <!-- Bouton global en bas de page -->
+                    <!-- Bouton ajouter -->
                     <div class="mt-4 d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary btn-lg">
                             <i class="bi bi-cart-plus me-2"></i>

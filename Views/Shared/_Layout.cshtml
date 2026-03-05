@@ -85,7 +85,7 @@
                                 </li>
                             }
 
-                            @* Liens visibles pour tout utilisateur authentifié (peu importe le rôle) *@
+                            @* Liens visibles pour tout utilisateur authentifié *@
                             @if (User.Identity?.IsAuthenticated ?? false)
                             {
                                 <li class="nav-item">

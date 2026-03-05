@@ -21,20 +21,20 @@ namespace BoutiqueElegance.Controllers
                 .OrderBy(t => t.Name)
                 .ToListAsync();
 
-            // Requête : restaurants + leurs tags
+            // Requête = restaurants + leurs tags
             var query = _context.Restaurants
                 .Include(r => r.RestaurantTags)
                 .ThenInclude(rt => rt.Tag)
                 .AsQueryable();
 
-            // Filtre par tag si fourni
+            // Filtre par tag
             if (!string.IsNullOrEmpty(selectedTag))
             {
                 query = query.Where(r =>
                     r.RestaurantTags.Any(rt => rt.Tag.Name == selectedTag));
             }
 
-            // Filtre par texte de recherche si fourni
+            // Filtre par texte de recherche
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(r =>

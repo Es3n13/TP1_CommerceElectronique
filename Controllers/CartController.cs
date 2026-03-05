@@ -128,7 +128,7 @@ namespace BoutiqueElegance.Controllers
             return RedirectToAction("Index");
         }
 
-        // Méthode helper pour calculer le total
+        // Méthode pour calculer le total
         public decimal GetTotal(Cart cart)
         {
             if (cart?.Items == null || !cart.Items.Any())

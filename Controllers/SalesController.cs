@@ -51,7 +51,7 @@ namespace BoutiqueElegance.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            // Id de l'utilisateur vendeur connecté
+            // Id de l'utilisateur vendeur
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             // Récupérer le restaurant associé à ce vendeur
@@ -89,7 +89,7 @@ namespace BoutiqueElegance.Controllers
             };
         }
 
-        // Retourne le label du statut en français
+        // Retourne le label du statut
         public string GetStatusLabel(string status)
         {
             return status?.ToLower() switch

@@ -27,7 +27,7 @@ namespace BoutiqueElegance.Data
             {
                 context.Database.Migrate();
 
-                // Si des restaurants existent déjà, on ne seed pas deux fois
+                // Si des restaurants existent déjà, on seed pas 2x
                 if (context.Restaurants.Any())
                     return;
 
@@ -334,7 +334,7 @@ namespace BoutiqueElegance.Data
                 .WithMany(t => t.RestaurantTags)
                 .HasForeignKey(rt => rt.TagId);
 
-            // Unicité du nom de tag
+            //Nom de tag unique
             modelBuilder.Entity<Tag>()
                 .HasIndex(t => t.Name)
                 .IsUnique();

@@ -133,7 +133,7 @@ namespace BoutiqueElegance.Controllers
                 return View();
             }
 
-            // Vérifier email existant (comme tu fais déjà)
+            // Vérifier email existant
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (existingUser != null)
             {

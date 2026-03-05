@@ -63,7 +63,7 @@ namespace BoutiqueElegance.Controllers
             };
         }
 
-        // Retourne le label du statut en français
+        // Retourne le label du statut
         public string GetStatusLabel(string status)
         {
             return status?.ToLower() switch

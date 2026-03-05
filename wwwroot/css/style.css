@@ -256,6 +256,8 @@ body {
     font-weight: 700;
 }
 
+/* ===== CART ===== */
+
 /* Empty Cart */
 .empty-cart {
     text-align: center;
@@ -559,7 +561,7 @@ body {
         position: static;
     }
 
-    /* ===== ORDERS PAGE ===== */
+    /* ===== ORDERS ===== */
 
     /* Page Title */
     .page-title {
@@ -644,7 +646,7 @@ body {
         align-items: flex-start;
     }
 
-    /* ===== RESTAURANT DETAILS PAGE ===== */
+    /* ===== RESTAURANT ===== */
 
     /* Hero Section */
     .restaurant-hero {
@@ -880,7 +882,7 @@ body {
             border-color: #C9A876;
         }
 
-    /* Boutons quantité (+/-) */
+    /* Boutons quantité +/- */
     .qty-btn {
         background: transparent;
         border: none;
@@ -1018,7 +1020,7 @@ body {
     .error-state p {
     }
 
-    /* ===== CHECKOUT PAGE ===== */
+    /* ===== CHECKOUT ===== */
 
     /* Checkout Header */
     .checkout-header {
@@ -1208,29 +1210,7 @@ body {
         display: flex;
     }
 
-    /* Test Mode Banner */
-    .test-mode-banner {
-        background: #FFF3CD;
-        border: 2px solid #FFE69C;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 25px;
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-    }
 
-    .test-icon {
-        font-size: 20px;
-        margin-top: 2px;
-    }
-
-    .test-mode-banner p {
-        color: #856404;
-        font-size: 13px;
-        margin: 0;
-        font-weight: 600;
-    }
 
     /* Payment Form */
     .payment-form {
@@ -1287,7 +1267,7 @@ body {
     line-height: 1.2;
 }
 
-/* ===== MENU FOOTER & CART SUMMARY ===== */
+/* ===== MENU et CART ===== */
 
 .menu-footer {
     margin-top: 50px;

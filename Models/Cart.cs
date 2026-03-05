@@ -4,10 +4,6 @@
     {
         public int Id { get; set; }
 
-        // On mva ClientId quand l’auth sera prête
-        // public int ClientId { get; set; }
-        // public User Client { get; set; }
-
         public ICollection<CartItem> Items { get; set; } = new List<CartItem>();
     }
 
