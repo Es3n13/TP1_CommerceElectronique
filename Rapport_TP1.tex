@@ -1,0 +1,473 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\begin{quote}
+\includegraphics[width=2.4224in,height=0.82448in]{media/image1.png}
+
+\textbf{Technologie du commerce électronique}
+\end{quote}
+
+\section{INF27523 (MS)}\label{inf27523-ms}
+
+\begin{quote}
+UNIVERSIT´E DU QU´EBEC A` RIMOUSKI
+
+D´EPARTEMENT DE MATH´EMATIQUES, D'INFORMATIQUE ET DE G´ENIE
+\end{quote}
+
+RAPPORT
+
+\section{Travail Pratique 01}\label{travail-pratique-01}
+
+\begin{quote}
+\textbf{E´QUIPE :}
+\end{quote}
+
+Amina Missoum
+
+Émile Santerre
+
+Léa Esso-Solam Bikassa
+
+\begin{quote}
+\textbf{Chargée de cours :}
+\end{quote}
+
+\subsection{Oumeima Nuigues}\label{oumeima-nuigues}
+
+Table des matières
+
+\section{Table des matières}\label{table-des-matiuxe8res}
+
+\hyperref[introduction]{1 Introduction \hyperref[introduction]{3}}
+
+\hyperref[description-du-projet]{2 Description du projet
+\hyperref[description-du-projet]{3}}
+
+\hyperref[technologies-utilisuxe9es]{3 Technologies utilisées
+\hyperref[technologies-utilisuxe9es]{4}}
+
+\hyperref[mise-en-ux153uvre-et-fonctionnalituxe9s]{4 Mise en œuvre et
+fonctionnalités \hyperref[mise-en-ux153uvre-et-fonctionnalituxe9s]{5}}
+
+\hyperref[duxe9fis-rencontruxe9s]{5 Défis rencontrés
+\hyperref[duxe9fis-rencontruxe9s]{7}}
+
+\hyperref[conclusion]{6 Conclusion \hyperref[conclusion]{8}}
+
+\section{}\label{section}
+
+\begin{quote}
+1 Introduction
+\end{quote}
+
+\section{1 Introduction}\label{introduction}
+
+Dans le cadre du cours de commerce électronique, ce travail pratique
+avait pour objectif de concevoir et d'implémenter une application web de
+boutique en ligne, en mettant en pratique les notions vues en classe
+autour des architectures MVC, de la gestion de sessions et de
+l'intégration d'une passerelle de paiement. Nous avons développé un site
+permettant à un client de naviguer parmi les restaurants, de consulter
+leur menu, de constituer un panier, puis de finaliser sa commande à
+l'aide d'un paiement sécurisé avec Stripe.
+
+Au-delà de la prise de commande, le projet nous a permis d'aborder
+plusieurs aspects clés d'une application de commerce électronique :
+gestion de comptes utilisateurs (client et vendeur), association des
+restaurants à un vendeur, validation métier (un panier ne peut contenir
+que des plats d'un seul restaurant), gestion du panier en session,
+historique des commandes et interface dédiée aux restaurateurs pour
+consulter leurs ventes. Ce rapport présente la description globale du
+projet, les technologies utilisées, la mise en œuvre des principales
+fonctionnalités, les défis rencontrés ainsi que les apprentissages que
+nous en retirons.
+
+2 Description du projet
+
+\section{Description du projet}\label{description-du-projet}
+
+\subsubsection{}\label{section-1}
+
+\subsubsection{\texorpdfstring{Le projet consiste en la réalisation d'un
+site web de commande de repas nommé « ÉléganceShop », inspiré d'une
+plateforme de type agrégateur de restaurants, mais centré sur un
+ensemble restreint de restaurants. L'application vise à offrir à un
+client une expérience fluide allant de la découverte du menu jusqu'au
+paiement en ligne, tout en fournissant aux vendeurs un accès simple aux
+commandes reçues.\\
+}{Le projet consiste en la réalisation d'un site web de commande de repas nommé « ÉléganceShop », inspiré d'une plateforme de type agrégateur de restaurants, mais centré sur un ensemble restreint de restaurants. L'application vise à offrir à un client une expérience fluide allant de la découverte du menu jusqu'au paiement en ligne, tout en fournissant aux vendeurs un accès simple aux commandes reçues. }}\label{le-projet-consiste-en-la-ruxe9alisation-dun-site-web-de-commande-de-repas-nommuxe9-uxe9luxe9ganceshop-inspiruxe9-dune-plateforme-de-type-agruxe9gateur-de-restaurants-mais-centruxe9-sur-un-ensemble-restreint-de-restaurants.-lapplication-vise-uxe0-offrir-uxe0-un-client-une-expuxe9rience-fluide-allant-de-la-duxe9couverte-du-menu-jusquau-paiement-en-ligne-tout-en-fournissant-aux-vendeurs-un-accuxe8s-simple-aux-commandes-reuxe7ues.}
+
+\subsubsection{Plus concrètement, nous avons
+voulu~:}\label{plus-concruxe8tement-nous-avons-voulu}
+
+\begin{itemize}
+\item
+  Proposer une interface claire pour parcourir les restaurants et leurs
+  plats.
+\item
+  Permettre la création de comptes Client et Vendeur, avec un rôle bien
+  défini.
+\item
+  Une liste des jeux de données avec recherche et filtres dynamiques.
+\item
+  Gérer un panier persistant, lié à la session, avec calcul automatique
+  du total.
+\item
+  Intégrer un paiement réel via Stripe pour simuler un scénario de
+  production.
+\item
+  Enregistrer les commandes et permettre au restaurant associé d'en
+  consulter le détail.
+\end{itemize}
+
+\subsubsection{}\label{section-2}
+
+2.2 Contexte fonctionnel
+
+D'un point de vue opérationnel, l\textquotesingle application se divise
+en deux parcours utilisateurs. Pour le client, le scénario commence par
+la création d\textquotesingle un compte ou une authentification
+sécurisée. Une fois connecté, l\textquotesingle utilisateur navigue
+parmi les restaurants disponibles, consulte les cartes détaillées et
+compose son panier. Le processus termine lors de la phase de validation
+où le client accède à une interface de paiement pour confirmer sa
+transaction avant de pouvoir suivre l\textquotesingle état de sa
+commande dans son historique personnel.
+
+À l\textquotesingle opposé, le vendeur bénéficie d\textquotesingle une
+interface d\textquotesingle administration. Lors de son inscription,
+celui-ci est obligatoirement associé à un établissement existant, ce qui
+lui octroie le droit de consulter la liste des commandes reçues. Cette
+interface permet au restaurateur d\textquotesingle accéder aux détails
+de chaque vente, tels que la liste des plats commandés, les quantités
+exactes, les montants perçus ainsi que les informations de contact du
+client.
+
+2.3 Fonctionnalités principales
+
+La mise en œuvre technique de l\textquotesingle application repose sur
+plusieurs piliers fonctionnels interconnectés. La gestion des comptes
+constitue la première brique, utilisant une authentification par cookies
+et des rôles bien définis (Client ou Vendeur) pour restreindre
+l\textquotesingle accès aux fonctionnalités spécifiques.
+L\textquotesingle exploration des restaurants a été optimisée par la
+création de pages détaillées affichant les menus, les descriptions de
+chaque plat.
+
+Le cœur de l\textquotesingle application réside cependant dans la
+logique du panier d\textquotesingle achat. Ce dernier
+n\textquotesingle est pas seulement un espace de stockage temporaire, il
+intègre une règle stricte qui limite le contenu à un seul restaurant par
+commande pour garantir la cohérence logistique. Cette contrainte est
+gérée par un système de détection de conflit qui alerte
+l\textquotesingle utilisateur en cas d\textquotesingle ajout incohérent.
+Enfin, le processus de paiement est sécurisé par Stripe Elements,
+assurant que les données bancaires ne transitent jamais en clair sur
+notre serveur. Une fois le paiement validé, le système génère
+automatiquement une commande et une facture, mettant ainsi à jour
+l\textquotesingle historique du client et le tableau de bord des ventes
+du vendeur.
+
+3 Technologies utilisées
+
+\section{3 Technologies utilisées}\label{technologies-utilisuxe9es}
+
+\subsubsection{}\label{section-3}
+
+3.1 Environnement de développement
+
+\subsubsection{}\label{section-4}
+
+Pour ce projet nous nous sommes appuyés sur un écosystème
+d\textquotesingle outils professionnels. Le développement a été
+principalement orchestré sous Visual Studio, permettant une gestion
+fluide du code C\#, des vues Razor et des feuilles de style CSS. Pour
+assurer la durabilité du travail et faciliter les phases
+d\textquotesingle intégration, nous avons utilisé Git avec GitHub comme
+système de gestion de versions. Cette approche nous a permis de
+travailler sur des branches distinctes, notamment pour isoler les tests
+de l\textquotesingle API Stripe avant de fusionner les fonctionnalités
+validées dans la branche principale. L\textquotesingle aspect technique
+repose sur le framework ASP.NET Core en MVC, qui structure
+l\textquotesingle application selon un modèle de séparation des
+responsabilités, tandis qu\textquotesingle Entity Framework Core assure
+la liaison entre le code et la base de données relationnelle.
+
+\subsubsection{}\label{section-5}
+
+3.2 Langages et frameworks
+
+Notre application est propulsée par le langage C\# via le framework
+ASP.NET Core, qui gère l\textquotesingle ensemble de la logique du
+serveur, des contrôleurs spécialisés aux mécanismes de routage. Pour la
+partie interface, nous avons privilégié Razor, facilitant la génération
+dynamique de contenu HTML à partir des données du modèle, comme
+l\textquotesingle affichage des paniers ou des historiques de commandes.
+
+La persistance des données est opérée par Entity Framework Core,
+agissant comme une couche d\textquotesingle abstraction pour manipuler
+les entités telles que les utilisateurs, les menus et les factures sans
+injection SQL directe. Le volet transactionnel est quant à lui sécurisé
+par Stripe .NET et Stripe.js, offrant une gestion des intentions de
+paiement. Enfin, l\textquotesingle aspect visuel et
+l\textquotesingle ergonomie ont été standardisés grâce à Bootstrap 5,
+complété par Bootstrap Icons pour une navigation intuitive, le tout
+soutenu par une charte graphique personnalisée en HTML5 et CSS3.
+
+3.3 Structure et services
+
+Notre architecture interne a été pensée pour favoriser la modularité et
+la réutilisation du code. Nous avons notamment mis en place un service
+dédié, le CartService, dont la responsabilité unique est
+d\textquotesingle orchestrer la logique du panier
+d\textquotesingle achat de sa création initiale en session
+jusqu\textquotesingle à la gestion des incrémentations de quantités et
+de la suppression d\textquotesingle items.
+
+Ce service interagit avec un modèle de données structuré où chaque
+entité possède des relations claires. Un restaurant rassemble plusieurs
+plats et se lie à un vendeur unique, tandis qu\textquotesingle un panier
+regroupe des éléments référençant des produits spécifiques. Cette
+organisation rigoureuse entre les entités User, Restaurant, Plat et
+Order permet de maintenir une intégrité des données, particulièrement
+lors de la transformation finale d\textquotesingle un panier en commande
+après validation du paiement.
+
+4 Mise en œuvre et fonctionnalités
+
+\section{4 Mise en œuvre et
+fonctionnalités}\label{mise-en-ux153uvre-et-fonctionnalituxe9s}
+
+\subsubsection{}\label{section-6}
+
+4.1 Organisation des contrôleurs et des vues
+
+L'architecture de l'application a été segmentée en plusieurs pôles de
+responsabilité afin de garantir une maintenance aisée et une séparation
+claire des préoccupations. Le cœur de l'expérience utilisateur est
+piloté par le HomeController et le RestaurantsController, qui gèrent
+respectivement la vitrine de la plateforme et
+l\textquotesingle affichage des menus. La gestion sensible des accès et
+des comptes est isolée dans l\textquotesingle AccountController, tandis
+que le cycle de vie de la commande est réparti entre le CartController
+pour la phase de sélection, le CheckoutController pour la transaction
+financière, et les contrôleurs OrdersController et SalesController pour
+le suivi post-achat. Chaque contrôleur communique avec des vues Razor
+spécifiques, structurées pour offrir une interface cohérente.
+L\textquotesingle utilisation d\textquotesingle un fichier de style
+global assure que les composants visuels, tels que les cartes de
+restaurants ou les résumés de commandes, conservent une unité esthétique
+sur l\textquotesingle ensemble du site.
+
+4.2 Authentification, rôles et profil
+
+La sécurité et la personnalisation de l\textquotesingle expérience
+reposent sur un système d\textquotesingle authentification basé sur les
+identités stockées en base de données. Lors de la phase
+d\textquotesingle inscription, l\textquotesingle utilisateur se voit
+assigner un rôle spécifique (Client ou Vendeur) qui détermine ses droits
+d\textquotesingle accès au sur de la plateforme. Le processus de
+connexion utilise des cookies d\textquotesingle authentification pour
+maintenir la session active, permettent de vérifier instantanément le
+rôle de l\textquotesingle utilisateur lors de chaque requête. Cette
+structure permet, par exemple, de restreindre l\textquotesingle accès au
+formulaire de paiement aux seuls clients, ou de réserver les suivis de
+vente au restaurateur approprié. Une page de profil dédiée permet aussi
+à chaque utilisateur de gérer ses informations personnelles,
+garantissant ainsi la conformité aux standards de gestion de comptes
+modernes.
+
+4.3 Gestion du panier et règle métier
+
+\subsubsection{}\label{section-7}
+
+\subsubsection{Le panier d'achat constitue l'élément le plus complexe de
+la logique métier. Pour éviter toute confusion lors de la préparation
+des commandes, nous avons instauré une contrainte technique interdisant
+le mélange de plats provenant de différents établissements. Cette règle
+est pilotée par le CartService qui, lors de chaque ajout, compare
+l\textquotesingle identifiant du restaurant du nouveau plat avec celui
+des articles déjà présents. Si une incohérence est détectée, le système
+lève une exception qui est interceptée par le contrôleur pour déclencher
+une interface modale. Cette fenêtre contextuelle offre au client une
+alternative claire, abandonner l\textquotesingle ajout pour préserver
+ses choix actuels, ou réinitialiser complètement son panier pour entamer
+une nouvelle commande auprès du second restaurant. Cette approche
+garantit que chaque commande générée est dirigée vers un seul et unique
+restaurant.}\label{le-panier-dachat-constitue-luxe9luxe9ment-le-plus-complexe-de-la-logique-muxe9tier.-pour-uxe9viter-toute-confusion-lors-de-la-pruxe9paration-des-commandes-nous-avons-instauruxe9-une-contrainte-technique-interdisant-le-muxe9lange-de-plats-provenant-de-diffuxe9rents-uxe9tablissements.-cette-ruxe8gle-est-pilotuxe9e-par-le-cartservice-qui-lors-de-chaque-ajout-compare-lidentifiant-du-restaurant-du-nouveau-plat-avec-celui-des-articles-duxe9juxe0-pruxe9sents.-si-une-incohuxe9rence-est-duxe9tectuxe9e-le-systuxe8me-luxe8ve-une-exception-qui-est-interceptuxe9e-par-le-contruxf4leur-pour-duxe9clencher-une-interface-modale.-cette-fenuxeatre-contextuelle-offre-au-client-une-alternative-claire-abandonner-lajout-pour-pruxe9server-ses-choix-actuels-ou-ruxe9initialiser-compluxe8tement-son-panier-pour-entamer-une-nouvelle-commande-aupruxe8s-du-second-restaurant.-cette-approche-garantit-que-chaque-commande-guxe9nuxe9ruxe9e-est-diriguxe9e-vers-un-seul-et-unique-restaurant.}
+
+\subsubsection{}\label{section-8}
+
+4.4 Intégration de Stripe
+
+Le déploiement de la solution de paiement s'est construit autour
+d\textquotesingle une communication bidirectionnelle entre notre serveur
+et les API de Stripe. La procédure débute par la création
+d\textquotesingle une intention de paiement (PaymentIntent) dès que le
+client accède à la page de validation, calculant le montant exact en
+cents pour éviter les erreurs d\textquotesingle arrondi. Côté client,
+nous utilisons Stripe Elements pour injecter un champ de saisie de carte
+bancaire sécurisé, ce qui permet de traiter les informations sensibles
+sans qu\textquotesingle elles ne transitent par nos propres serveurs,
+assurant ainsi une conformité PCI. Une fois que Stripe confirme la
+validité de la transaction, un identifiant unique est renvoyé à notre
+contrôleur. Ce dernier effectue une vérification finale de sécurité côté
+serveur avant de confirmer la création de la commande et de vider le
+panier, transformant ainsi une intention d\textquotesingle achat en une
+transaction finalisée et enregistrée.
+
+5 Défis rencontrés
+
+\section{5 Défis rencontrés}\label{duxe9fis-rencontruxe9s}
+
+\section{}\label{section-9}
+
+5.1 Gestion du panier et résolution des conflits de restaurants
+
+L'un des défis techniques les plus important a été de maintenir la
+cohérence du panier face aux comportements imprévus des utilisateurs.
+Initialement, le système permettait l\textquotesingle ajout de plats
+issus de différents établissements, ce qui créait une ambiguïté majeure
+lors de la répartition des paiements et de la notification aux
+restaurateurs. Pour remédier à cela, nous avons conçu une logique
+d\textquotesingle exception personnalisée au sein du CartService. La
+difficulté ne résidait pas seulement dans l\textquotesingle interdiction
+de l\textquotesingle ajout, mais dans la gestion de
+l\textquotesingle expérience utilisateur qui en découle. Il a fallu
+orchestrer une communication entre le service, le contrôleur et une vue
+partielle asynchrone pour que la modale de conflit puisse offrir une
+option de réinitialisation automatique du panier. Ce mécanisme a
+nécessité une réflexion approfondie sur la gestion des états de session
+et sur la persistance des données temporaires.
+
+5.2 Intégration de la passerelle Stripe et synchronisation
+
+L'intégration d\textquotesingle une solution de paiement tierce comme
+Stripe a introduit une complexité supplémentaire liée à la
+synchronisation entre le front-end et le back-end. L\textquotesingle un
+des obstacles majeurs a été de garantir que le cycle de vie du
+PaymentIntent corresponde exactement aux actions de
+l\textquotesingle utilisateur. Nous avons dû faire face à des situations
+où le script Stripe.js ne se chargeait pas correctement ou dont le rendu
+visuel était altéré par des contraintes CSS, rendant le champ de saisie
+invisible ou inutilisable. De plus, la sécurisation du processus a exigé
+une validation rigoureuse côté serveur, il était essentiel de confirmer
+le statut du paiement directement via l\textquotesingle API Stripe avant
+de valider la commande en base de données, afin d\textquotesingle éviter
+la création de commandes "fantômes" en cas
+d\textquotesingle interruption de la connexion ou de fraude potentielle.
+
+5.3 Sécurisation des accès et gestion des rôles
+
+La mise en œuvre d\textquotesingle un système à deux types
+d\textquotesingle utilisateurs (Client et Vendeur) a apporté des enjeux
+de sécurité importants. Le défi consistait à restreindre
+l\textquotesingle accès aux URLs sensibles pour éviter
+qu\textquotesingle un client ne puisse visualiser les ventes
+d\textquotesingle un restaurant. Nous avons rencontré des difficultés
+initiales avec la mise à jour des "Claims" d\textquotesingle identité
+lors de la transition entre les comptes, ce qui provoquait parfois des
+erreurs de redirection. La résolution de ce problème a nécessité une
+configuration minutieuse du middleware
+d\textquotesingle authentification et l\textquotesingle application
+systématique de l\textquotesingle attribut {[}Authorize(Roles =
+"..."){]} sur les action du contrôleur, garantissant ainsi une forme
+d'étanchéité entre les différentes interfaces de
+l\textquotesingle application.
+
+6 Conclusion
+
+\section{6 Conclusion}\label{conclusion}
+
+Ce travail pratique nous a permis de concevoir une application de
+commerce électronique complète, ancrée dans un scénario réel de
+restauration moderne. En articulant le projet autour d'ASP.NET Core en
+MVC et d'Entity Framework Core, nous avons pu transformer des concepts
+théoriques tels que la gestion d\textquotesingle états via les sessions
+en une solution fonctionnelle. L\textquotesingle intégration
+d\textquotesingle une passerelle de paiement réelle avec Stripe a
+constitué une étape déterminante, nous confrontant aux exigences de
+sécurité et de synchronisation propres aux transactions financières en
+ligne.
+
+Au-delà des simples fonctionnalités de navigation et de commande, le
+projet nous a imposé une rigueur de structuration logicielle, notamment
+à travers le développement du CartService et la gestion fine des rôles
+utilisateurs. Les obstacles rencontrés, qu'il s'agisse de la logique de
+conflit entre restaurants ou des défis
+d\textquotesingle authentification, ont été des opportunités
+d\textquotesingle approfondir notre compréhension des mécanismes du Web.
+En conclusion, ce projet représente une immersion concrète dans les
+enjeux techniques et commerciaux du commerce électronique, nous offrant
+une base solide pour le développement de futures applications web
+professionnelles.
+
+\section{}\label{section-10}
+
+\end{document}
